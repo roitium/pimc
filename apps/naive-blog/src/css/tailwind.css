@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @source "../../../../packages/content/src";
 @source "../../../../contents";
+/* Keep drawer styles in Astro's stylesheet across ClientRouter navigations. */
+/* Vaul 1.1.2 ships style.css but does not expose it through package exports. */
+@import "../../node_modules/vaul/style.css";
 @import "tailwindcss-radix-colors/dist/green.css";
 @import "tailwindcss-radix-colors/dist/red.css";
 @import "tailwindcss-radix-colors/dist/slate.css";
