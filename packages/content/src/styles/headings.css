@@ -3,6 +3,18 @@
 }
 
 .content-header > .heading-anchor {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+.content-header:hover > .heading-anchor,
+.content-header > .heading-anchor:focus-visible {
+  text-decoration: underline;
+}
+
+.content-header > .heading-anchor > .content-header-link-icon {
   position: absolute;
   inset-inline-start: -1.25em;
   inline-size: 1.25em;
@@ -12,13 +24,6 @@
   opacity: 0;
 }
 
-.content-header:hover > .heading-anchor,
-.content-header > .heading-anchor:focus-visible {
+.content-header:hover > .heading-anchor > .content-header-link-icon {
   opacity: 1;
-}
-
-@media (hover: none) {
-  .content-header > .heading-anchor {
-    opacity: 0.65;
-  }
 }

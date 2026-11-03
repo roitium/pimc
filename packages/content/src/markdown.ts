@@ -29,13 +29,10 @@ export function createMarkdownConfig(profile: MarkdownProfile) {
     [
       rehypeAutolinkHeadings,
       {
-        behavior: "prepend",
+        behavior: "wrap",
         headingProperties: { className: ["content-header"] },
         properties: {
           className: ["heading-anchor"],
-          ariaLabel: "链接到此标题",
-          ariaHidden: false,
-          tabIndex: 0,
         },
         content: {
           type: "element",
