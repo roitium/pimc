@@ -33,7 +33,7 @@ description: "这个博客用到的 AstroPaper v6 特性、配置项、写作语
 | 命令                 | 作用                                                         |
 | -------------------- | ------------------------------------------------------------ |
 | `bun run dev`        | 本地开发，http://localhost:4321                              |
-| `bun run build`      | 类型检查 → 构建 → 生成 Pagefind 索引 → 注入 `dist/_headers`  |
+| `bun run build`      | 类型检查 → 构建 → 生成 Pagefind 索引                         |
 | `bun run preview`    | 预览 `dist` 构建结果                                         |
 | `bun run sync`       | 生成 Astro 类型（改了 content config 后跑一下）              |
 | `bun run lint`       | oxlint                                                       |
@@ -42,7 +42,7 @@ description: "这个博客用到的 AstroPaper v6 特性、配置项、写作语
 | `bun run cf:preview` | `wrangler dev`，用 Workers 运行时本地预览静态资源            |
 
 > [!NOTE] 说明
-> `bun run build` 不是单纯的 `astro build`：它还包含 `astro check`、`pagefind` 索引生成和 `_headers` 复制。CI 和 Cloudflare 上都用这条命令。
+> `bun run build` 不是单纯的 `astro build`：它还包含 `astro check` 和 `pagefind` 索引生成。CI 和 Cloudflare 上都用这条命令。
 
 ## 目录结构
 
@@ -51,8 +51,6 @@ description: "这个博客用到的 AstroPaper v6 特性、配置项、写作语
 ├── astro-paper.config.ts      # 站点配置（标题、域名、功能开关、社交链接…）
 ├── astro.config.ts            # Astro 配置（i18n、Markdown 插件、Shiki、字体）
 ├── wrangler.jsonc             # Cloudflare Workers 静态资源配置
-├── cf/_headers                # 响应头（构建时复制到 dist）
-├── scripts/cf-headers.mjs     # 把 cf/_headers 注入 dist
 ├── public/                    # 原样发布的静态文件（favicon、默认 OG 图）
 └── src/
     ├── assets/
@@ -407,12 +405,9 @@ bun run deploy
 
 Worker → Settings → Domains & Routes → Add custom domain。绑定后把 `astro-paper.config.ts` 的 `site.url` 改成新域名，再部署一次，否则 canonical / sitemap / RSS 还是旧地址。
 
-### 响应头
+### 安全响应头
 
-`cf/_headers` 在构建时复制到 `dist/_headers`：`/_astro/*` 长缓存，其余加 `X-Content-Type-Options`、`Referrer-Policy`、`X-Frame-Options`。
-
-> [!WARNING] 注意
-> 不要直接把 `_headers` 放进 `public/`。Astro 7 会把 `public/_headers` 当成 JS 模块解析，构建直接报 `PARSE_ERROR`。
+`public/_headers` 随静态文件复制到构建产物，包含 CSP、防嵌入、MIME 类型保护等响应头，缓存沿用 Cloudflare 默认策略。CSP 允许同源资源、Pagefind 所需的 WebAssembly 与 worker，以及 Cloudflare Analytics 域名；新增外部资源时请同步更新此文件。
 
 ### 配额
 
@@ -424,7 +419,6 @@ Workers 免费版静态资源上限约 25 MiB，目前构建产物约 8～9 MB�
 | ------------------------------------- | ------------------------------------------------------------ |
 | 文章 404                              | `pubDatetime` 是未来时间；改成过去时间，或等定时发布         |
 | 构建报 `MissingLocaleError: zh-CN`    | `site.lang` 不在 `i18n.locales` 里，两边保持一致             |
-| `_headers` 构建报 `PARSE_ERROR`       | 文件放在了 `public/`，改放 `cf/` 并靠脚本注入                |
 | 搜索没有结果                          | 索引是构建产物，先跑 `bun run build`                         |
 | 图片 404                              | `@/assets` 用于 `src/assets`；`public/` 下用 `/xxx` 直接引用 |
 | 标签 URL 是一串 `%E5...`              | 中文标签会被 URL 编码，属正常现象                            |
@@ -448,4 +442,3 @@ Workers 免费版静态资源上限约 25 MiB，目前构建产物约 8～9 MB�
 | 代码高亮主题         | `astro.config.ts` → `shikiConfig.themes`                 |
 | 搜索开关             | `features.search`                                        |
 | 部署配置             | `wrangler.jsonc`、`package.json` → `deploy`              |
-| 响应头               | `cf/_headers`                                            |

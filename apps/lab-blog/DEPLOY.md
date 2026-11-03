@@ -109,5 +109,8 @@ draft: false
 
 - **Google Search Console**：在 `astro-paper.config.ts` 的 `site.googleVerification` 填验证值
 - **站点统计**：Cloudflare Web Analytics（免费、无 Cookie）在 Dashboard → Analytics 里开启
-- **缓存 / 安全响应头**：`cf/_headers`，构建时由 `scripts/cf-headers.mjs` 复制到 `dist/_headers`
 - **资源配额**：Workers 免费版静态资源上限约 25 MiB，当前构建产物约 8.4 MB，够用
+
+## 安全响应头
+
+`public/_headers` 由 Astro 原样复制到 `dist/_headers`，Cloudflare 对静态响应应用其中的规则。缓存使用 Cloudflare 默认策略。CSP 按当前应用资源配置：字体、图片和 Pagefind 搜索使用同源资源；允许 Cloudflare Web Analytics 的 `static.cloudflareinsights.com` 脚本及 `cloudflareinsights.com` 数据上报。Pagefind 需要 `wasm-unsafe-eval` 和同源 worker。OG 图片生成时访问的 jsDelivr 仅在构建阶段使用，无需加入浏览器 CSP。新增外部图片、接口或 iframe 时，需要同步更新策略。

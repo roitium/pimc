@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev --port 4321",
-    "build": "astro check && astro build && pagefind --site dist && cp -r dist/pagefind public/ && node scripts/cf-headers.mjs",
+    "build": "astro check && astro build && pagefind --site dist && cp -r dist/pagefind public/",
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",

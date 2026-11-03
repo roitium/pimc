@@ -1,7 +1,12 @@
 import type { ResolvedAstroPaperConfig } from "@/types/config";
 import { getAssetPath } from "./withBase";
 
-const publicFiles = import.meta.glob("/public/*", { eager: false });
+// Only inspect image assets: importing arbitrary public files would make Vite
+// parse deployment files such as _headers as JavaScript.
+const publicFiles = import.meta.glob(
+  "/public/*.{avif,gif,ico,jpeg,jpg,png,svg,webp}",
+  { eager: false },
+);
 
 function existsInPublic(filename: string): boolean {
   return `/public/${filename}` in publicFiles;
