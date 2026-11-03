@@ -1,0 +1,7 @@
+services:
+  lab-blog:
+    build:
+      context: ../..
+      dockerfile: apps/lab-blog/Dockerfile
+    ports:
+      - "8080:80"

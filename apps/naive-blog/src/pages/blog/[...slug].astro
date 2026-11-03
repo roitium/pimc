@@ -1,0 +1,33 @@
+---
+import ArticlePage from "@/layouts/ArticlePage.astro";
+import { allPosts, type Post } from "@/services/content/core";
+import { isPostUnlocked, unlockCookieName } from "@/services/private-post-auth";
+import { withBase } from "@/utils/paths";
+export function getStaticPaths() {
+  return allPosts
+    .filter((post) => !import.meta.env.PROD || (!post.private && !post.draft))
+    .map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+const post =
+  (Astro.props as { post?: Post }).post ||
+  allPosts.find((entry) => entry.slug === Astro.params.slug);
+if (!post) {
+  Astro.response.status = 404;
+  return Astro.rewrite(withBase("/404"));
+}
+// The dev server matches this route before the production SSR fallback.
+const unlocked =
+  post.private &&
+  isPostUnlocked(
+    post.slug,
+    post.password,
+    Astro.cookies.get(unlockCookieName(post.slug))?.value,
+  );
+if (post.private) {
+  Astro.response.headers.set("Cache-Control", "private, no-store");
+  Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  Astro.response.headers.set("Vary", "Cookie");
+}
+---
+
+<ArticlePage post={post} unlocked={unlocked} />

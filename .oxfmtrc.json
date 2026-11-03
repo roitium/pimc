@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "sortPackageJson": false,
+  "astro": {},
+  "svelte": {},
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.astro/**",
+    "**/.wrangler/**",
+    "**/src/generated/**",
+    "**/public/**",
+    "apps/naive-blog/data/blog/**",
+    "bun.lock"
+  ]
+}
