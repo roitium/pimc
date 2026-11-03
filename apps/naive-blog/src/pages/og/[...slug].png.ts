@@ -8,7 +8,11 @@ export const getStaticPaths: GetStaticPaths = () =>
     .filter((post) => !import.meta.env.PROD || !post.draft)
     .map((post) => ({
       params: { slug: post.slug },
-      props: { title: post.title, description: post.summary, date: post.date },
+      props: {
+        title: post.title,
+        description: post.description,
+        date: post.date,
+      },
     }));
 
 // Render during the Node build; the Worker serves the resulting PNG as an asset.

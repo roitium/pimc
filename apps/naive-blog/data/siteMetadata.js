@@ -6,7 +6,7 @@ const siteMetadata = {
   language: "zh-cn",
   theme: "light", // system, dark or light
   siteUrl: "https://www.roitium.com",
-  siteContentRepo: "https://github.com/roitium/blog-posts",
+  siteContentRepo: import.meta.env.PUBLIC_VAULT_REPO_URL || "",
   email: "me@roitium.com",
   github: "https://github.com/roitium",
   x: "https://x.com/yoshino_2333",

@@ -1,38 +1,33 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
-import { z } from "astro/zod";
+import { createArticleLoader } from "@pimc/content/loader";
+import {
+  articlePatterns,
+  articleSourcePath,
+  contentsUrl,
+} from "@pimc/content/vault";
+import { normalizeArticleSlug } from "@pimc/content/paths";
+import { z, postSchema } from "@pimc/content/schema";
 
 const posts = defineCollection({
-  loader: glob({
-    pattern: "**/*.{md,mdx}",
-    base: "./data/blog",
+  loader: createArticleLoader({
+    base: contentsUrl(),
+    pattern: articlePatterns,
+    target: "personal",
     generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ""),
+    getPath: (id) => `/blog/${normalizeArticleSlug(articleSourcePath(id))}`,
   }),
-  schema: z.object({
-    // YAML parses unquoted date titles as Date objects in existing posts.
-    title: z.union([
-      z.string(),
-      z.date().transform((date) => date.toISOString().slice(0, 10)),
-    ]),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-    lastmod: z.coerce.date().optional(),
-    draft: z.boolean().default(false),
-    summary: z.string().optional(),
+  schema: postSchema.safeExtend({
     images: z.array(z.string()).optional(),
-    authors: z.array(z.string()).default(["default"]),
     layout: z.string().optional(),
     canonicalUrl: z.string().optional(),
-    private: z.boolean().default(false),
-    password: z.string().nullable().optional(),
-    pinned: z.boolean().default(false),
   }),
 });
 const authors = defineCollection({
   loader: glob({
     pattern: "**/*.mdx",
-    base: "./data/authors",
-    generateId: ({ entry }) => entry.replace(/\.mdx$/, ""),
+    base: contentsUrl("personal-blog/authors"),
+    generateId: ({ entry }) => entry.replace(/\/index\.mdx$/, ""),
   }),
   schema: z.object({
     name: z.string(),

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import siteMetadata from "@/data/siteMetadata";
-import type { Toc } from "@/mdx-plugins/toc";
+import type { Toc } from "@pimc/content/toc";
 import { TOCDrawer } from "./TOCDrawer";
 
 interface ScrollTopAndCommentProps {

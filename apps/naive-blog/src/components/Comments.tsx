@@ -28,7 +28,7 @@ export default function Comments() {
     getServerTheme,
   );
   if (!configs) {
-    return null;
+    return <></>;
   }
   const commentsTheme =
     configs.themeURL || (theme === "dark" ? configs.darkTheme : configs.theme);

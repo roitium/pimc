@@ -5,7 +5,7 @@ import { toString as toStringMdast } from "mdast-util-to-string";
 import { remark } from "remark";
 import type { Parent } from "unist";
 import { visit } from "unist-util-visit";
-import type { VFile } from "vfile";
+import { VFile } from "vfile";
 
 export type TocItem = {
   value: string;
@@ -14,6 +14,12 @@ export type TocItem = {
 };
 
 export type Toc = TocItem[];
+
+declare module "vfile" {
+  interface DataMap {
+    toc: Toc;
+  }
+}
 
 /**
  * Extracts TOC headings from markdown file and adds it to the file's data object.
@@ -42,7 +48,8 @@ export function remarkTocHeadings() {
  * @return {*}  {Promise<Toc>}
  */
 export async function extractTocHeadings(markdown: string): Promise<Toc> {
-  const vfile = await remark().use(remarkTocHeadings).process(markdown);
-  // @ts-expect-error 111
-  return vfile.data.toc;
+  const processor = remark().use(remarkTocHeadings);
+  const vfile = new VFile(markdown);
+  await processor.run(processor.parse(vfile), vfile);
+  return vfile.data.toc ?? [];
 }

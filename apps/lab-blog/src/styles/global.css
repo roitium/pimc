@@ -1,7 +1,10 @@
 @import "tailwindcss";
+@source "../../../../packages/content/src";
+@source "../../../../contents";
 @import "./theme.css";
 @import "./typography.css";
-@import "rehype-callouts/theme/obsidian";
+@import "@pimc/content/styles/callouts.css";
+@import "@pimc/content/styles/headings.css";
 @import "katex/dist/katex.min.css";
 /* 霞鹜文楷：按 unicode-range 分包的 woff2，浏览器按需加载所需分片 */
 @import "@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Regular/result.css";

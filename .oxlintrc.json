@@ -15,7 +15,8 @@
     "**/.wrangler/**",
     "**/src/generated/**",
     "**/public/**",
-    "apps/naive-blog/data/blog/**"
+    "apps/naive-blog/data/blog/**",
+    "contents/**"
   ],
   "overrides": [
     {

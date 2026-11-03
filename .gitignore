@@ -26,3 +26,8 @@ apps/naive-blog/public/search.json
 .idea/
 coverage/
 compose.override.yaml
+
+# Private vault mirror; never commit copied notes or credentials.
+contents/**
+!contents/.gitkeep
+.contents-sync-*/

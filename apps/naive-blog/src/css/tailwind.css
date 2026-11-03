@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../../../../packages/content/src";
+@source "../../../../contents";
 @import "tailwindcss-radix-colors/dist/green.css";
 @import "tailwindcss-radix-colors/dist/red.css";
 @import "tailwindcss-radix-colors/dist/slate.css";
@@ -9,7 +11,6 @@
 @import "@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Medium/result.css";
 @plugin '@tailwindcss/typography';
 @plugin '@tailwindcss/forms';
-@source '../../data/**/*.mdx';
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -306,17 +307,6 @@ input:-webkit-autofill:focus {
 
 .katex-display {
   overflow: auto hidden;
-}
-
-.content-header-link-icon {
-  @apply pr-1 lg:-ml-6;
-  @apply -ml-4;
-  opacity: 0;
-}
-
-.content-header:hover .content-header-link-icon,
-.content-header-link-icon:hover {
-  opacity: 1;
 }
 
 .linkicon {

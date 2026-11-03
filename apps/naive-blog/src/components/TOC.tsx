@@ -1,5 +1,5 @@
 import { type JSX, useEffect, useRef, useState } from "react";
-import type { Toc, TocItem } from "@/mdx-plugins/toc";
+import type { Toc, TocItem } from "@pimc/content/toc";
 
 export interface TOCInlineProps {
   toc?: Toc;
@@ -146,7 +146,7 @@ const TOCInline = ({
 
   // 在 Hooks 调用之后处理早期返回
   if (!toc) {
-    return null;
+    return <></>;
   }
 
   const re = Array.isArray(exclude)
@@ -167,9 +167,9 @@ const TOCInline = ({
     return isWithinRange;
   });
 
-  // 如果过滤后没有内容，也可以选择返回 null
+  // 空内容仍返回 React Fragment，供 Astro 在多渲染器下识别。
   if (filteredToc.length === 0) {
-    return null;
+    return <></>;
   }
 
   const handleItemClick = (id: string) => {

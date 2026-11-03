@@ -1,13 +1,9 @@
 // 为文章生成一些元数据的辅助函数
 
 import { slug } from "github-slugger";
-import rehypeSanitize from "rehype-sanitize";
-import rehypeStringify from "rehype-stringify";
-import remarkGfm from "remark-gfm";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
 import RSS from "rss";
-import { unified } from "unified";
+import { createHtmlProcessor } from "@pimc/content/render";
+
 import categoryMapping from "@/data/category-mapping";
 import config from "@/data/siteMetadata";
 import type { Post } from "@/services/content/core";
@@ -16,6 +12,8 @@ import {
   filterPublicPosts,
   sortPostsByDate,
 } from "@/services/content/utils";
+
+const rssProcessor = createHtmlProcessor();
 
 export type CategoryTreeNode = {
   name: string;
@@ -103,13 +101,7 @@ async function generateRssItemDescription(post: Post) {
   const body = post.content;
   const tip = `> rss 内容与网站采用的渲染流程不同，可能导致排版错乱或效果欠佳，建议到博客：<a href="${config.siteUrl}/blog/${post.slug}">${config.siteUrl}/blog/${post.slug}</a> 查看\n\n`;
 
-  const file = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype)
-    .use(rehypeSanitize)
-    .use(rehypeStringify)
-    .process(tip + body);
+  const file = await rssProcessor.process(tip + body);
 
   return file.toString();
 }

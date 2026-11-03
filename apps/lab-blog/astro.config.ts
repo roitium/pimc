@@ -1,3 +1,4 @@
+import { createMarkdownConfig } from "@pimc/content/markdown";
 import {
   defineConfig,
   envField,
@@ -6,19 +7,8 @@ import {
 } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import { unified } from "@astrojs/markdown-remark";
-import remarkToc from "remark-toc";
-import remarkCollapse from "remark-collapse";
-import rehypeCallouts from "rehype-callouts";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import {
-  transformerNotationDiff,
-  transformerNotationHighlight,
-  transformerNotationWordHighlight,
-} from "@shikijs/transformers";
-import { transformerFileName } from "./src/utils/transformers/fileName";
 import config from "./astro-paper.config";
 
 import svelte from "@astrojs/svelte";
@@ -32,6 +22,7 @@ export default defineConfig({
         config.features?.showArchives !== false || !page.endsWith("/archives/"),
     }),
     svelte(),
+    react(),
   ],
   i18n: {
     locales: ["zh-CN"],
@@ -40,32 +31,10 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
-  markdown: {
-    processor: unified({
-      remarkPlugins: [
-        remarkMath,
-        [remarkToc, { heading: "table of contents|目录" }],
-        [
-          remarkCollapse,
-          { test: /^(Table of contents|目录)$/, summary: "展开目录" },
-        ],
-      ],
-      rehypePlugins: [rehypeCallouts, rehypeKatex],
-    }),
-    shikiConfig: {
-      themes: { light: "min-light", dark: "night-owl" },
-      defaultColor: false,
-      wrap: false,
-      transformers: [
-        transformerFileName({ style: "v2", hideDot: false }),
-        transformerNotationHighlight(),
-        transformerNotationWordHighlight(),
-        transformerNotationDiff({ matchAlgorithm: "v3" }),
-      ],
-    },
-  },
+  markdown: createMarkdownConfig("lab"),
   vite: {
     plugins: [tailwindcss()],
+    resolve: { dedupe: ["react", "react-dom", "svelte"] },
   },
   fonts: [
     {

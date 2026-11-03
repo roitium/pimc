@@ -19,6 +19,7 @@
     "**/src/generated/**",
     "**/public/**",
     "apps/naive-blog/data/blog/**",
-    "bun.lock"
+    "bun.lock",
+    "contents/**"
   ]
 }

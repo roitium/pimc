@@ -3,5 +3,14 @@ services:
     build:
       context: ../..
       dockerfile: apps/lab-blog/Dockerfile
+      args:
+        VAULT_GIT_URL: ${VAULT_GIT_URL}
+        VAULT_GIT_REF: ${VAULT_GIT_REF:-}
+      secrets:
+        - vault_git_token
     ports:
       - "8080:80"
+
+secrets:
+  vault_git_token:
+    environment: VAULT_GIT_TOKEN

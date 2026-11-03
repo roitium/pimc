@@ -32,11 +32,9 @@ const next =
   index >= 0 && sorted[index - 1]
     ? { path: sorted[index - 1].path, title: sorted[index - 1].title }
     : undefined;
-const authors = post.authors
-  .map((name) => allAuthors.find((author) => author.slug === name))
-  .filter((author) => !!author);
+const authors = allAuthors.filter((author) => author.slug === "default");
 const rendered = showBody
-  ? await render((await getEntry("posts", post.slug))!)
+  ? await render((await getEntry("posts", post._id))!)
   : null;
 const Content = rendered?.Content;
 const toc = showBody ? post.toc : undefined;
@@ -46,8 +44,8 @@ const jsonLd = {
   "@type": "BlogPosting",
   headline: post.title,
   datePublished: post.date.toISOString(),
-  dateModified: (post.lastmod || post.date).toISOString(),
-  description: post.summary,
+  dateModified: (post.updated_at || post.date).toISOString(),
+  description: post.description,
   image: site.socialBanner,
   url: new URL(`blog/${post.slug}`, `${site.siteUrl}/`).href,
   author: authors.map((author) => ({ "@type": "Person", name: author.name })),
@@ -56,12 +54,12 @@ const jsonLd = {
 
 <BaseLayout
   title={post.title}
-  description={post.summary}
+  description={post.description}
   image={og}
   canonical={post.canonicalUrl}
   article={{
     date: post.date,
-    lastmod: post.lastmod,
+    updated_at: post.updated_at,
     authors: authors.map((author) => author.name),
   }}
   noindex={post.private || post.draft}

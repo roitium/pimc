@@ -1,11 +1,14 @@
-import rehypeStringify from "rehype-stringify";
-import remarkGfm from "remark-gfm";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
 import { toast } from "sonner";
-import { unified } from "unified";
+import { createHtmlProcessor } from "@pimc/content/render";
 import { remarkTagToJsx } from "@/mdx-plugins/remark-tag-to-jsx";
 import type { ApiMemo, ApiResponse, TimelineResponse } from "@/types/memos";
+
+// Preserve the existing trusted HTML behavior for Memos only.
+const memoProcessor = createHtmlProcessor({
+  remarkPlugins: [remarkTagToJsx],
+  allowHtml: true,
+  sanitize: false,
+});
 
 const endpoint = (
   import.meta.env.PUBLIC_MEMOS_ENDPOINT || "https://v2.be.nodal.roitium.com"
@@ -23,13 +26,7 @@ export async function fetchComments(memoName: string) {
   // 处理评论内容
   return await Promise.all(
     comments.map(async (comment) => {
-      comment.content = await unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkTagToJsx)
-        .use(remarkRehype, { allowDangerousHtml: true })
-        // .use(rehypeSanitize)
-        .use(rehypeStringify, { allowDangerousHtml: true })
+      comment.content = await memoProcessor
         .process(comment.content)
         .then((file) => file.toString());
       return comment;
@@ -57,13 +54,7 @@ export async function fetchMemos() {
   // 处理Memos内容
   return await Promise.all(
     jsonResp.data.data.map(async (memo: ApiMemo) => {
-      memo.content = await unified()
-        .use(remarkParse)
-        .use(remarkGfm)
-        .use(remarkTagToJsx)
-        .use(remarkRehype, { allowDangerousHtml: true })
-        // .use(rehypeSanitize)
-        .use(rehypeStringify, { allowDangerousHtml: true })
+      memo.content = await memoProcessor
         .process(memo.content)
         .then((file) => file.toString());
       return memo;

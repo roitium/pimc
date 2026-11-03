@@ -9,9 +9,9 @@ import config from "@/config";
 
 const about = await getEntry("pages", "about");
 
-if (!about) {
+if (!about || !about.data.publish_to.includes("lab") || about.data.draft) {
   throw new Error(
-    "Missing content entry: `about.md` or `about.mdx` in `src/content/pages/`",
+    "Missing content entry: `index.md` or `index.mdx` in `contents/lab-blog/pages/about/`",
   );
 }
 

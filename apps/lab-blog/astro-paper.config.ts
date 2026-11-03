@@ -31,7 +31,9 @@ export default defineAstroPaperConfig({
     editPost: {
       // TODO: 换成你自己的仓库地址，或在不需要 “编辑此页” 时改为 { enabled: false }
       enabled: true,
-      url: "https://github.com/roitium/lab-blog/edit/main/",
+      url: import.meta.env.PUBLIC_VAULT_REPO_URL
+        ? `${import.meta.env.PUBLIC_VAULT_REPO_URL}/edit/main/`
+        : "",
     },
     search: "pagefind",
   },

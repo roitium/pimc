@@ -5,7 +5,8 @@ import PageTitle from "@/components/PageTitle";
 import SocialIcon from "@/components/svgs/social-icons";
 import { components } from "@/components/mdx";
 const author = await getEntry("authors", "default");
-if (!author) throw new Error("Missing data/authors/default.mdx");
+if (!author)
+  throw new Error("Missing contents/personal-blog/authors/default/index.mdx");
 const { Content } = await render(author);
 const { name, avatar, occupation, company, email, twitter, linkedin, github } =
   author.data;

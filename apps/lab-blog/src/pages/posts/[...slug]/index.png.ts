@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { loadOgFonts, ogFontFamily } from "@/utils/loadOgFonts";
 import { getPostSlug } from "@/utils/getPostPaths";
 import config from "@/config";
+import { postFilter } from "@/utils/postFilter";
 
 export async function getStaticPaths() {
   if (!config.features.dynamicOgImage) {
@@ -12,7 +13,7 @@ export async function getStaticPaths() {
   }
 
   const posts = await getCollection("posts").then((p) =>
-    p.filter(({ data }) => !data.draft && !data.ogImage),
+    p.filter(postFilter).filter(({ data }) => !data.ogImage),
   );
 
   return posts.map((post) => ({
@@ -129,7 +130,7 @@ export const GET: APIRoute = async ({ props }) => {
                                       overflow: "hidden",
                                       fontWeight: "bold",
                                     },
-                                    children: props.data.author,
+                                    children: config.site.author,
                                   },
                                 },
                               ],

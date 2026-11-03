@@ -30,6 +30,8 @@ Bun 版本固定在仓库根目录 `package.json` 的 `packageManager` 字段，
 
 > `site.url` 一定要在第一次正式部署前填对，它会写进 canonical、sitemap、RSS 和 OG 图。
 
+根目录 `.env` 需配置 `VAULT_GIT_URL` 与私库只读凭据 `VAULT_GIT_TOKEN`；本地可用 `VAULT_PATH` 指向 pimc-vault。每次构建会同步到根目录 `contents/`。
+
 ## 1. 本地跑起来
 
 ```bash
@@ -57,6 +59,8 @@ Cloudflare 现在推荐新项目用 Workers，而不是 Pages；本项目是纯�
    - Root directory：`/`（默认）
 4. 环境变量（Settings → Build → Variables）：
    - `NODE_VERSION` = `24`（Astro 7 要求 Node ≥ 22.12）
+   - `VAULT_GIT_URL`：vault 仓库 URL
+   - `VAULT_GIT_TOKEN`：私库只读凭据，作为 Build secret
 5. 保存并部署。之后每次 push 到 `main` 都会自动构建发布，PR 会有预览部署。
 
 ### 方式 B：本地命令行部署
@@ -80,37 +84,6 @@ Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain
 
 ## 5. 写文章
 
-在 `src/content/posts/` 下新建 `.md` 或 `.mdx`，frontmatter 必填 `title`、`pubDatetime`、`description`：
+文章写入独立 vault 的 `lab-blog/posts/<文章名>/index.md` 或 `index.mdx`。图片和文章专属组件放在同目录，相对引用；设置 `publish_to: [lab]`。也可以将其他目录里的文章设置为发布到 Lab。
 
-```md
----
-title: "我的第一篇文章"
-pubDatetime: 2026-10-20T10:00:00+08:00
-description: "一句话摘要，会出现在列表和 SEO 描述里。"
-tags: ["notes"]
-draft: false
----
-
-正文……
-```
-
-- 子目录会变成 URL 的一部分；以 `_` 开头的目录只用于整理、不影响 URL
-- `draft: true` 的文章不会发布
-- 文章里的图片放 `src/assets/images/`，用相对路径引用
-- “关于”页在 `src/content/pages/about.md`
-
-## 6. 上线前的清理
-
-模板自带的示例文章已经删除，`src/content/posts/` 里只剩自己的文章。还需要把 `src/content/pages/about.md` 从模板默认文案改成自己的介绍。
-
-写作规范和这套模板的完整功能，见站内文章《AstroPaper 模板速查手册》（`src/content/posts/astropaper-guide.md`）。
-
-## 7. 可选增强
-
-- **Google Search Console**：在 `astro-paper.config.ts` 的 `site.googleVerification` 填验证值
-- **站点统计**：Cloudflare Web Analytics（免费、无 Cookie）在 Dashboard → Analytics 里开启
-- **资源配额**：Workers 免费版静态资源上限约 25 MiB，当前构建产物约 8.4 MB，够用
-
-## 安全响应头
-
-`public/_headers` 由 Astro 原样复制到 `dist/_headers`，Cloudflare 对静态响应应用其中的规则。缓存使用 Cloudflare 默认策略。CSP 按当前应用资源配置：字体、图片和 Pagefind 搜索使用同源资源；允许 Cloudflare Web Analytics 的 `static.cloudflareinsights.com` 脚本及 `cloudflareinsights.com` 数据上报。Pagefind 需要 `wasm-unsafe-eval` 和同源 worker。OG 图片生成时访问的 jsDelivr 仅在构建阶段使用，无需加入浏览器 CSP。新增外部图片、接口或 iframe 时，需要同步更新策略。
+关于页位于 `lab-blog/pages/about/index.md`。应用源码不再保存文章与交互演示组件。frontmatter、同步配置和目录规则见[根目录说明](../../README.md)；写作手册位于 vault 的 `lab-blog/posts/astropaper-guide/index.md`。

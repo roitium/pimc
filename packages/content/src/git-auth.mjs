@@ -1,14 +1,14 @@
 /** Pass GitHub credentials through Git's environment, never command arguments. */
 export function buildGitEnvironment(gitUrl, sourceEnv = process.env) {
   const env = { ...sourceEnv, GIT_TERMINAL_PROMPT: "0" };
-  const token = env.GIT_TOKEN;
+  const token = env.VAULT_GIT_TOKEN;
   if (!token) return env;
   let url;
   try {
     url = new URL(gitUrl);
   } catch {
     throw new Error(
-      "使用 GIT_TOKEN 时，GIT_URL 必须是 https://github.com/ 下的仓库地址。",
+      "使用 VAULT_GIT_TOKEN 时，VAULT_GIT_URL 必须是 https://github.com/ 下的仓库地址。",
     );
   }
   if (
@@ -19,7 +19,7 @@ export function buildGitEnvironment(gitUrl, sourceEnv = process.env) {
     url.port
   )
     throw new Error(
-      "使用 GIT_TOKEN 时，请使用不含凭据的 https://github.com/ 仓库地址。",
+      "使用 VAULT_GIT_TOKEN 时，请使用不含凭据的 https://github.com/ 仓库地址。",
     );
   const count = Number(env.GIT_CONFIG_COUNT || 0);
   if (!Number.isSafeInteger(count) || count < 0)
@@ -36,6 +36,6 @@ export function buildGitEnvironment(gitUrl, sourceEnv = process.env) {
   env.GIT_TRACE = "0";
   env.GIT_TRACE_CURL = "0";
   env.GIT_CURL_VERBOSE = "0";
-  delete env.GIT_TOKEN;
+  delete env.VAULT_GIT_TOKEN;
   return env;
 }

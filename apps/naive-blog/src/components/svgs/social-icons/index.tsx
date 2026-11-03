@@ -38,7 +38,8 @@ const SocialIcon = ({ kind, href, size = 8 }: SocialIconProps) => {
     (kind === "mail" &&
       !/^mailto:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(href))
   )
-    return null;
+    // A React element lets Astro identify the renderer even when no link is shown.
+    return <></>;
 
   const SocialSvg = components[kind];
 

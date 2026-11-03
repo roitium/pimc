@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import { existsSync, openSync, closeSync, copyFileSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -8,7 +8,9 @@ import { startWorker } from "./worker-test-server.mjs";
 
 process.env.NODE_ENV = "production";
 
-const fixture = "data/blog/__astro_smoke_test__";
+const fixture = path.resolve(
+  "../../contents/personal-blog/posts/__astro_smoke_test__",
+);
 assert(!existsSync(fixture), `Refusing to overwrite ${fixture}`);
 const secret = "astro-protected-body-marker-2981";
 const password = "astro-test-password-2981";
@@ -31,38 +33,76 @@ async function files(dir) {
 }
 
 try {
-  await mkdir(`${fixture}/nested`, { recursive: true });
+  await mkdir(`${fixture}/nested/中文`, { recursive: true });
+  await mkdir(`${fixture}/plain`, { recursive: true });
+  await mkdir(`${fixture}/private`, { recursive: true });
   await writeFile(
-    `${fixture}/nested/中文.mdx`,
-    `---\ntitle: Astro smoke test 中文\ndate: '2026-11-02'\ntags: [AstroSmoke]\nsummary: Smoke test\n---\n## Repeated\n\nPublic body marker $E=mc^2$.\n\n## Repeated\n\n\`\`\`ts file="example.ts"\n// [!code highlight]\nconst answer = 42\n\`\`\`\n\n![Logo](/static/images/logo.png)\n\n<GCPlay />\n`,
+    `${fixture}/nested/中文/InlineDemo.tsx`,
+    "export default function InlineDemo() { return <span>local-component-marker-74529</span>; }",
+  );
+  copyFileSync(
+    "public/static/images/logo.png",
+    `${fixture}/nested/中文/fixture.png`,
+  );
+  copyFileSync("public/static/images/logo.png", `${fixture}/plain/fixture.png`);
+  await writeFile(
+    `${fixture}/nested/中文/index.mdx`,
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Astro smoke test 中文\ndate: '2026-11-02T00:00:00+08:00'\ntags: [AstroSmoke]\ndescription: Smoke test\n---\nimport InlineDemo from "./InlineDemo.tsx";\n\n<InlineDemo />\n\n![Bundled image](./fixture.png)\n\n## Repeated\n\n> [!NOTE]\n> Shared callout marker 74529\n\nPublic body marker $E=mc^2$.\n\n## Repeated\n\n\`\`\`ts file="example.ts"\n// [!code highlight]\nconst answer = 42\n\`\`\`\n\n![Logo](/static/images/logo.png)\n\n<GCPlay />\n`,
   );
   await writeFile(
-    `${fixture}/plain.md`,
-    "---\ntitle: 2024-04-15\ndate: '2026-10-20'\n---\n![Logo](/static/images/logo.png)\n",
+    `${fixture}/plain/index.md`,
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: '2024-04-15'\ndate: '2026-10-20T00:00:00+08:00'\n---\n![Relative image](./fixture.png)\n\n![Logo](/static/images/logo.png)\n`,
   );
   await writeFile(
-    `${fixture}/private.mdx`,
-    `---\ntitle: Protected smoke test\ndate: '2026-11-02'\nprivate: true\npassword: '${password}'\ntags: [ProtectedSmokeTag]\n---\n## Private heading\n\n${secret} $E=mc^2$.\n\n![Relative image](./fixture.png)\n\n\`\`\`ts\nconst privateAnswer = 42\n\`\`\`\n\n<GCPlay />\n`,
+    `${fixture}/private/index.mdx`,
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Protected smoke test\ndate: '2026-11-02T00:00:00+08:00'\npassword: '${password}'\ntags: [ProtectedSmokeTag]\n---\n## Private heading\n\n${secret} $E=mc^2$.\n\n![Relative image](./fixture.png)\n\n\`\`\`ts\nconst privateAnswer = 42\n\`\`\`\n\n<GCPlay />\n`,
   );
-  copyFileSync("public/static/images/logo.png", `${fixture}/fixture.png`);
+  copyFileSync(
+    "public/static/images/logo.png",
+    `${fixture}/private/fixture.png`,
+  );
   await writeFile(
     `${fixture}/other-private.mdx`,
-    `---\ntitle: Another protected post\ndate: '2026-11-02'\nprivate: true\npassword: '${password}'\n---\nother-private-body-marker-2981\n`,
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Another protected post\ndate: '2026-11-02T00:00:00+08:00'\npassword: '${password}'\n---\nother-private-body-marker-2981\n`,
   );
   await mkdir(`${fixture}/private-only`, { recursive: true });
   await writeFile(
     `${fixture}/private-only/listed.mdx`,
-    `---\ntitle: Listed protected article\ndate: '2026-11-03'\nprivate: true\npassword: '${password}'\ntags: [PrivateOnlyTag]\n---\nprivate-only-body-marker-2981\n`,
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Listed protected article\ndate: '2026-11-03T00:00:00+08:00'\npassword: '${password}'\ntags: [PrivateOnlyTag]\n---\nprivate-only-body-marker-2981\n`,
   );
   await writeFile(
     `${fixture}/draft.mdx`,
-    "---\ntitle: Draft smoke test\ndate: '2026-11-02'\ndraft: true\ntags: [DraftSmokeTag]\n---\nastro-draft-body-marker-2981\n",
+    `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Draft smoke test\ndate: '2026-11-02T00:00:00+08:00'\ndraft: true\ntags: [DraftSmokeTag]\n---\nastro-draft-body-marker-2981\n`,
   );
   for (let i = 1; i <= 6; i++)
     await writeFile(
       `${fixture}/page-${i}.mdx`,
-      `---\ntitle: Pagination smoke ${i}\ndate: '2026-10-20'\ntags: [AstroSmoke]\n---\nPage ${i}\n`,
+      `---\nid: ${randomUUID()}\npublish_to: [personal]\ntitle: Pagination smoke ${i}\ndate: '2026-10-20T00:00:00+08:00'\ntags: [AstroSmoke]\n---\nPage ${i}\n`,
     );
+  await writeFile(
+    `${fixture}/unpublished.mdx`,
+    `---\nid: ${randomUUID()}\ntitle: Unpublished vault note\npublish_to: []\ndate: '2026-10-20T00:00:00+08:00'\n---\nimport NeverCompile from "./not-present-on-purpose";\n\n<NeverCompile />\n\nastro-unpublished-body-marker-2981\n`,
+  );
+  const sharedDemo = `${fixture}/PrivateDemo.tsx`;
+  await writeFile(
+    sharedDemo,
+    "export default function PrivateDemo() { return <span>private-local-component-74529</span>; }",
+  );
+  for (const file of await files(fixture)) {
+    if (!file.endsWith(".mdx")) continue;
+    let body = await readFile(file, "utf8");
+    if (body.includes("<GCPlay />")) {
+      body = body.replaceAll("<GCPlay />", "<PrivateDemo />");
+      const specifier =
+        "./" +
+        path.relative(path.dirname(file), sharedDemo).replaceAll("\\", "/");
+      body = body.replace(
+        /^(---\n[\s\S]*?\n---\n)/,
+        `$1import PrivateDemo from "${specifier}";\n\n`,
+      );
+      await writeFile(file, body);
+    }
+  }
   const log = "/tmp/naiveblog-migration-smoke-build.log";
   const logFile = openSync(log, "w");
   try {
@@ -82,13 +122,29 @@ try {
   assert(markdown.includes(">2024-04-15</h1>"));
   assert(markdown.includes(`${base}/static/images/logo.png`));
   assert(article.includes("Public body marker"));
+  assert(article.includes("local-component-marker-74529"));
+  assert(article.includes('alt="Bundled image"'));
+  assert(markdown.includes('alt="Relative image"'));
+  assert(
+    !existsSync(`${output}/blog/__astro_smoke_test__/plain/index/index.html`),
+  );
+  assert(
+    !existsSync(
+      `${output}/blog/__astro_smoke_test__/nested/中文/index/index.html`,
+    ),
+  );
   assert(article.includes('class="katex"'));
   assert(article.includes('class="astro-code'));
   assert(article.includes("example.ts"));
   assert(article.includes("highlighted"));
   assert(article.includes("data-copy-code"));
   assert(article.includes('id="repeated-1"'));
-  assert(article.includes("gc."));
+  assert(article.includes('href="#repeated-1"'));
+  assert(article.includes('class="heading-anchor"'));
+  assert(article.includes("Shared callout marker 74529"));
+  assert(article.includes("callout"));
+  assert(!article.includes("markdown-alert"));
+  assert(article.includes("private-local-component-74529"));
   assert(article.includes(`${base}/static/images/logo.png`));
   assert(
     article.includes(
@@ -111,6 +167,9 @@ try {
   );
   assert(!existsSync(`${output}/blog/__astro_smoke_test__/private/index.html`));
   assert(!existsSync(`${output}/blog/__astro_smoke_test__/draft/index.html`));
+  assert(
+    !existsSync(`${output}/blog/__astro_smoke_test__/unpublished/index.html`),
+  );
   for (const file of await files(output)) {
     if (!/\.(?:html|js|json|xml|txt|map)$/.test(file)) continue;
     const text = await readFile(file, "utf8");
@@ -122,6 +181,8 @@ try {
         .key,
       password,
       "astro-draft-body-marker-2981",
+      "astro-unpublished-body-marker-2981",
+      "Unpublished vault note",
       createHash("sha256").update(password).digest("hex"),
     ])
       assert(!text.includes(marker), `Protected content leaked into ${file}`);
@@ -242,7 +303,7 @@ try {
   assert(unlocked.includes('id="private-heading"'));
   assert(unlocked.includes('class="katex"'));
   assert(unlocked.includes("data-copy-code"));
-  assert(unlocked.includes("gc."));
+  assert(unlocked.includes("private-local-component-74529"));
   assert(unlocked.includes('alt="Relative image"'));
   assert(!unlocked.includes("article-password"));
   assert(!unlocked.includes(password));

@@ -1,19 +1,13 @@
+import { createMarkdownConfig } from "@pimc/content/markdown";
 import { execFileSync } from "node:child_process";
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
+import svelte from "@astrojs/svelte";
 import mdx from "@astrojs/mdx";
 import cloudflare from "@astrojs/cloudflare";
 import { loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
-import { unified } from "@astrojs/markdown-remark";
-import {
-  transformerNotationDiff,
-  transformerNotationHighlight,
-  transformerNotationWordHighlight,
-} from "@shikijs/transformers";
 import privatePostAuth from "./src/integrations/private-post-auth.ts";
-import { remarkPlugins, rehypePlugins } from "./src/mdx-plugins/config.ts";
-import { transformerFileName } from "./src/utils/transformers/fileName.js";
 
 const env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
 // Vite exposes PUBLIC_* automatically; only generated build metadata needs defining.
@@ -53,26 +47,10 @@ export default defineConfig({
       env.PRIVATE_POST_COOKIE_SECRET || process.env.PRIVATE_POST_COOKIE_SECRET,
     ),
     react(),
+    svelte(),
     mdx(),
   ],
-  markdown: {
-    processor: unified({
-      remarkPlugins,
-      rehypePlugins,
-      smartypants: false,
-    }),
-    shikiConfig: {
-      themes: { light: "min-light", dark: "night-owl" },
-      defaultColor: false,
-      wrap: false,
-      transformers: [
-        transformerFileName({ style: "v2", hideDot: false }),
-        transformerNotationHighlight(),
-        transformerNotationWordHighlight(),
-        transformerNotationDiff({ matchAlgorithm: "v3" }),
-      ],
-    },
-  },
+  markdown: createMarkdownConfig("personal"),
   fonts: [
     {
       name: "Monaspace Neon",
@@ -86,6 +64,7 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    resolve: { dedupe: ["react", "react-dom", "svelte"] },
     define: Object.fromEntries(
       Object.entries(buildEnv).map(([key, value]) => [
         `import.meta.env.${key}`,

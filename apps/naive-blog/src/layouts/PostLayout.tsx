@@ -6,14 +6,14 @@ import Link from "@/components/Link";
 import type { ReactNode } from "react";
 import categoryMapping from "@/data/category-mapping";
 import siteMetadata from "@/data/siteMetadata";
-import type { TocItem } from "@/mdx-plugins/toc";
+import type { TocItem } from "@pimc/content/toc";
 import { Fragment } from "react";
 import type { Author, Post } from "@/services/content/core";
 import type { CoreContent } from "@/services/content/utils";
 import { cn } from "@/utils/classname";
 
 const editUrl = (path: string) =>
-  `${siteMetadata.siteContentRepo}/blob/main/blog-posts/${path.replace("blog/", "")}`;
+  `${siteMetadata.siteContentRepo}/blob/main/${path}`;
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
   weekday: "long",
@@ -109,11 +109,13 @@ export default function PostLayout({
               </div>
 
               {/* 文章底部链接 */}
-              <div className="pt-6 pb-6 text-center text-slate-11 text-sm dark:text-slatedark-11">
-                <Link href={editUrl(_meta.filePath)}>
-                  View on GitHub (If you have access)
-                </Link>
-              </div>
+              {siteMetadata.siteContentRepo && (
+                <div className="pt-6 pb-6 text-center text-slate-11 text-sm dark:text-slatedark-11">
+                  <Link href={editUrl(_meta.filePath)}>
+                    View on GitHub (If you have access)
+                  </Link>
+                </div>
+              )}
 
               {/* 评论区域 */}
               {siteMetadata.comments && (

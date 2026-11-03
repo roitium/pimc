@@ -37,11 +37,13 @@ bun run deploy    # 构建并发布到 Cloudflare Workers
 
 站点信息位于 `data/siteMetadata.js`，分类显示名称与简介位于 `data/category-mapping.ts`。
 
-- 文章存放于 `data/blog/**/*.{md,mdx}`，作者资料存放于 `data/authors/*.mdx`。
-- 配置 `GIT_URL` 后，`dev` 和 `build` 会先拉取内容仓库的 `blog-posts/` 与 `static/images/`。未配置时使用本地内容。
-- 目录层级决定分类，例如 `data/blog/programming/typescript.mdx` 对应 `/blog/programming/typescript` 与 `/categories/blog/programming`。
+- 文章直接读取根目录 `contents/{personal-blog,lab-blog}/posts/`，按 `publish_to` 包含 `personal` 筛选；修改独立 vault 中的源文件，不要修改生成的镜像。
+- 作者资料位于 `contents/personal-blog/authors/default/index.mdx`。
+- 一篇文章组织为 `tech/hello/index.md` 或 `index.mdx`，同目录放图片和自定义组件，通过相对路径引用。URL 为 `/blog/tech/hello`；组织目录 `personal-blog/posts` 不进入 URL。
+- 构建和开发启动时，从根目录环境变量配置的 vault 同步到 `contents/`。文章专属组件不再放在应用的 `src/components` 中。
+- 目录层级决定分类，例如 `contents/personal-blog/posts/programming/typescript/index.mdx` 对应 `/blog/programming/typescript` 与 `/categories/blog/programming`。
 - 支持数学公式、Shiki 代码高亮、GitHub 提示块与 MDX 自定义组件。
-- `draft: true` 的文章仅在开发环境显示。`private: true` 的文章会显示在首页、文章列表、分类、标签和前后篇导航中，但不进入搜索、RSS 和文章 sitemap；访问正文需要输入密码。
+- `draft: true` 的文章仅在开发环境显示。只有 `publish_to` 包含 `personal` 的文章会进入本站。设置非空 `password` 的文章会显示在首页、文章列表、分类、标签和前后篇导航中，但不进入搜索、RSS 和文章 sitemap；访问正文需要输入密码。
 - 密码正文仅在服务端验证成功后返回。不要将受保护正文或密码放进公开图片、前端组件 props 或公开变量。
 - 加密文章通过 Worker 按需渲染，解锁后使用与公开文章相同的 Astro 原生 MDX 流程，支持相对图片和 Astro / React 组件。普通文章仍在构建时生成静态 HTML，文章 URL 不变。
 - 解锁状态使用按文章签名的 HttpOnly、SameSite=Lax Cookie，HTTPS 下启用 Secure，最长有效 7 天；密码变更后失效。页面和鉴权接口均返回 `private, no-store`，不会把正文放入共享缓存。
@@ -53,16 +55,11 @@ bun run deploy    # 构建并发布到 Cloudflare Workers
 
 全站正文使用霞鹜文楷，通过 npm 包 `@chinese-fonts/lxgwwenkai` 引入 Regular（400）和 Medium（500）字重；标题、强调文本和加粗类使用 Medium。代码使用 Astro Fonts API 自托管的 Monaspace Neon。字体由构建工具打包到站点资源中，浏览器按需加载，无需在源码中维护字体文件或连接第三方字体 CDN。
 
-## 私密文章仓库
+## Vault 同步
 
-文章仓库为 `https://github.com/roitium/blog-posts.git`，当前目录结构可直接使用。
+在 monorepo 根目录 `.env` 或构建环境中设置 `VAULT_GIT_URL`、私库只读凭据 `VAULT_GIT_TOKEN`，可选 `VAULT_GIT_REF`；本地也可用 `VAULT_PATH` 指向 `~/Documents/pimc-vault`。同步配置见[根目录说明](../../README.md)。Git URL 优先于本地路径；同步失败会中止构建，保留原 contents。
 
-1. 在 GitHub 创建 fine-grained Personal Access Token，Resource owner 选择 `roitium`，Repository access 仅选择 `blog-posts`，Repository permissions 设置 `Contents: Read-only`，并设置合适的有效期。
-2. 本地开发将仓库 URL 与 Token 分别填入未提交的 `.env` 中的 `GIT_URL`、`GIT_TOKEN`。
-3. 在 Cloudflare Workers Builds 的构建配置中添加 `GIT_URL=https://github.com/roitium/blog-posts.git`，并把 `GIT_TOKEN` 作为 **Build secret** 添加。它用于构建阶段，不是 Worker 运行时的 secret。
-4. 重新触发构建。`bun run build` 会先克隆文章仓库，再生成页面和静态 OG 图片。
-
-脚本通过 Git 的环境配置注入 HTTPS Authorization header，Token 不放进仓库 URL、命令行参数或客户端变量。未配置 `GIT_TOKEN` 时仍可使用本地已配置的 Git 凭据。仅在文章仓库推送内容不会自动触发另一个仓库的 Workers Build，需要手动重建，或另行配置 Deploy Hook / CI 联动。
+脚本通过 Git 的环境配置注入 HTTPS Authorization header，Token 不放进仓库 URL、命令行参数或客户端变量。内容库推送不会自动触发应用仓库的部署，需要另行配置构建触发器。
 
 ## 环境变量与部署
 
@@ -83,7 +80,7 @@ bun run deploy
 
 `wrangler.jsonc` 中的 Worker 名称默认是 `naiveblog`，可按需修改。在 Cloudflare Workers Builds 中连接此仓库时，安装命令使用 `bun install --frozen-lockfile`，根目录为 monorepo 根目录，构建命令使用 `bun run build:naive-blog`，部署命令使用 `cd apps/naive-blog && bunx --no-install wrangler deploy`。
 
-`PUBLIC_*` 变量在构建时写入客户端代码，应配置在构建环境中；修改后需要重新构建。`GIT_URL` 同样仅用于构建阶段。未来新增的运行时密钥应通过 `wrangler secret put` 配置，不要放进公开前缀变量或提交到仓库。
+`PUBLIC_*` 变量在构建时写入客户端代码，应配置在构建环境中；修改后需要重新构建。`VAULT_GIT_URL` 同样仅用于构建阶段。未来新增的运行时密钥应通过 `wrangler secret put` 配置，不要放进公开前缀变量或提交到仓库。
 
 已启用 `nodejs_compat`，密码接口可使用 Node crypto。项目没有使用 Astro Sessions，因此关闭了 session 支持，不会自动创建 KV namespace；图片使用构建时优化，也不要求 Cloudflare Images binding。静态资源的安全响应头位于 `public/_headers`，动态响应通过 Astro middleware 设置。
 
