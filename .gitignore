@@ -14,6 +14,7 @@ codedb.snapshot*
 
 # Generated app content
 apps/lab-blog/public/pagefind/
+apps/naive-blog/public/pagefind/
 apps/naive-blog/src/generated/
 apps/naive-blog/data/blog/
 apps/naive-blog/data/blog-tmp/

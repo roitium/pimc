@@ -1,13 +1,17 @@
-import { useKBar } from "kbar";
 import { SearchIcon } from "lucide-react";
 import { memo } from "react";
+import { withBase } from "@/utils/paths";
 
 const SearchButton = memo(() => {
-  const { query } = useKBar();
   return (
-    <button onClick={() => query.toggle()} aria-label="Search">
+    <a
+      href={withBase("/search")}
+      className="inline-flex items-center justify-center self-center py-2 md:py-0"
+      aria-label="搜索文章"
+      title="搜索文章（⌘/Ctrl+K）"
+    >
       <SearchIcon className="size-4" />
-    </button>
+    </a>
   );
 });
 

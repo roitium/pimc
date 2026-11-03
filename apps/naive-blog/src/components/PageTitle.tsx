@@ -5,10 +5,12 @@ const PageTitle = ({
   title,
   subtitle,
   className,
+  indexable = false,
 }: {
   title: string;
   subtitle?: string | ReactNode;
   className?: string;
+  indexable?: boolean;
 }) => {
   return (
     <div
@@ -18,6 +20,8 @@ const PageTitle = ({
       )}
     >
       <h1
+        data-pagefind-body={indexable ? "" : undefined}
+        data-pagefind-meta={indexable ? "title" : undefined}
         className={twMerge(
           className,
           "break-words font-extrabold text-3xl text-slate-12 leading-9 tracking-tight sm:text-4xl sm:leading-10 md:px-6 md:text-6xl md:leading-14 dark:text-slatedark-12",

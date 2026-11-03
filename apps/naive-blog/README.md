@@ -3,7 +3,7 @@
 > Too young, too simple, sometimes naïve!
 > —— 🐸
 
-基于 Astro、React、Tailwind CSS 和 MDX 的个人博客。页面与公开正文在构建时生成 HTML，导航、搜索、目录、Memos 和文章内演示按需加载 React。密码文章等动态接口使用 Cloudflare Workers，OG 图片在构建时生成。
+基于 Astro、React、Tailwind CSS 和 MDX 的个人博客。页面与公开正文在构建时生成 HTML，导航、目录、Memos 和文章内演示按需加载 React，搜索使用 Pagefind。密码文章等动态接口使用 Cloudflare Workers，OG 图片在构建时生成。
 
 ## 本地开发
 
@@ -18,6 +18,8 @@ bun run dev
 ```
 
 开发服务器默认运行于 `http://localhost:4322`。
+
+搜索入口位于 `/search`，支持 ⌘/Ctrl+K 和 `?q=关键词`。与 lab-blog 一样使用 Pagefind 默认 UI，支持中文全文搜索、命中摘要和小节结果。`bun run build` 在静态 HTML 生成后索引公开文章的标题与正文，将搜索资源写入 `dist/client/<base>/pagefind/` 并复制到 `public/pagefind/` 供开发使用；首次开发或文章更新后，需要重新构建索引。草稿、密码文章、列表和导航不会进入索引。
 
 ```sh
 bun run check     # Astro 与 TypeScript 检查
@@ -86,7 +88,7 @@ bun run deploy
 
 OG 图片在 Node 构建阶段为每篇文章生成到 `/og/<文章路径>.png`，文章的 Open Graph / Twitter 元数据直接引用静态图片。Worker 只分发 PNG，不再运行图片渲染器或加载 WASM。`@vercel/og` 仅作为构建依赖；Vercel 专属 Analytics / Speed Insights 已移除。更新文章标题或摘要后需要重新构建图片。
 
-公开页面、`feed.xml`、`search.json`、`robots.txt` 和 `sitemap.xml` 静态生成。以下路由需要服务端运行时，不能直接部署到只提供静态文件的托管服务：
+公开页面、`feed.xml`、`robots.txt` 和 `sitemap.xml` 静态生成。以下路由需要服务端运行时，不能直接部署到只提供静态文件的托管服务：
 
 - `POST /api/blog/password`
 - `GET /api/3party/netease/playlist`

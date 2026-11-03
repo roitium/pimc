@@ -14,7 +14,7 @@
     "test:smoke": "node scripts/migration-smoke.mjs",
     "deploy": "bun run build && wrangler deploy",
     "deploy:check": "wrangler deploy --dry-run",
-    "build:site": "astro build",
+    "build:site": "astro build && node scripts/build-search.mjs",
     "dev:site": "astro dev --port 4322"
   },
   "dependencies": {
@@ -33,7 +33,6 @@
     "dayjs": "^1.11.13",
     "github-slugger": "^2.0.0",
     "katex": "^0.16.22",
-    "kbar": "0.1.0-beta.48",
     "lightgallery": "^2.8.3",
     "lucide-react": "^0.562.0",
     "react": "19.1.1",
@@ -62,7 +61,9 @@
     "@vercel/og": "^0.8.5",
     "typescript": "^5.8.3",
     "vite": "^8.3.4",
-    "wrangler": "^4.156.1"
+    "wrangler": "^4.156.1",
+    "pagefind": "^1.5.2",
+    "@pagefind/default-ui": "^1.5.2"
   },
   "engines": {
     "node": ">=22.23.4"

@@ -1,0 +1,105 @@
+---
+import "@pagefind/default-ui/css/ui.css";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageTitle from "@/components/PageTitle";
+import { withBase } from "@/utils/paths";
+---
+
+<BaseLayout title="搜索" noindex>
+  <div class="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+    <PageTitle title="搜索" subtitle="搜索文章标题与正文" />
+    {import.meta.env.DEV && (
+      <p class="mb-6 text-sm text-slate-11 dark:text-slatedark-11">
+        开发模式使用上次构建的搜索索引，首次使用或更新文章后请运行 bun run
+        build。
+      </p>
+    )}
+    <div
+      id="pagefind-search"
+      data-bundle-path={withBase("/pagefind/")}
+      data-base-url={withBase("/")}
+    ></div>
+    <noscript>请启用 JavaScript 以搜索文章。</noscript>
+  </div>
+</BaseLayout>
+
+<script>
+  import { PagefindUI } from "@pagefind/default-ui";
+
+  let search:
+    | { destroy(): void; triggerSearch(term: string): void }
+    | undefined;
+
+  function updateQuery(term: string) {
+    const url = new URL(window.location.href);
+    if (term.trim()) url.searchParams.set("q", term);
+    else url.searchParams.delete("q");
+    history.replaceState(history.state, "", url);
+    return term;
+  }
+
+  function initSearch() {
+    const element = document.querySelector<HTMLElement>("#pagefind-search");
+    if (!element || element.querySelector("form")) return;
+
+    search = new PagefindUI({
+      element,
+      bundlePath: element.dataset.bundlePath,
+      baseUrl: element.dataset.baseUrl,
+      showImages: false,
+      showSubResults: true,
+      autofocus: true,
+      processTerm: updateQuery,
+    });
+
+    // Pagefind skips processTerm when the input becomes empty.
+    element.addEventListener("input", (event) => {
+      if (
+        event.target instanceof HTMLInputElement &&
+        !event.target.value.trim()
+      )
+        updateQuery("");
+    });
+    element
+      .querySelector(".pagefind-ui__search-clear")
+      ?.addEventListener("click", () => updateQuery(""));
+
+    const query = new URLSearchParams(window.location.search).get("q");
+    if (query) search?.triggerSearch(query);
+  }
+
+  document.addEventListener("astro:page-load", initSearch);
+  document.addEventListener("astro:before-swap", () => {
+    search?.destroy();
+    search = undefined;
+  });
+</script>
+
+<style is:global>
+  #pagefind-search {
+    --pagefind-ui-font: var(--font-app);
+    --pagefind-ui-text: var(--color-slate-12);
+    --pagefind-ui-background: var(--color-slate-2);
+    --pagefind-ui-border: var(--color-slate-6);
+    --pagefind-ui-primary: var(--color-blue-11);
+    --pagefind-ui-tag: var(--color-slate-3);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 0.75rem;
+  }
+
+  .dark #pagefind-search {
+    --pagefind-ui-text: var(--color-slatedark-12);
+    --pagefind-ui-background: var(--color-slatedark-2);
+    --pagefind-ui-border: var(--color-slatedark-6);
+    --pagefind-ui-primary: var(--color-bluedark-11);
+    --pagefind-ui-tag: var(--color-slatedark-3);
+  }
+
+  #pagefind-search .pagefind-ui__search-input {
+    font-weight: 400;
+  }
+
+  #pagefind-search .pagefind-ui__result-link {
+    overflow-wrap: anywhere;
+  }
+</style>

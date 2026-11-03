@@ -4,6 +4,7 @@ import { createHash, createHmac, randomUUID } from "node:crypto";
 import { existsSync, openSync, closeSync, copyFileSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 import { startWorker } from "./worker-test-server.mjs";
 
 process.env.NODE_ENV = "production";
@@ -106,7 +107,7 @@ try {
   const log = "/tmp/naiveblog-migration-smoke-build.log";
   const logFile = openSync(log, "w");
   try {
-    execFileSync("bun", ["run", "astro", "build"], {
+    execFileSync("bun", ["run", "build:site"], {
       env: { ...process.env, NODE_ENV: "production" },
       stdio: ["ignore", logFile, "pipe"],
     });
@@ -187,7 +188,7 @@ try {
     ])
       assert(!text.includes(marker), `Protected content leaked into ${file}`);
   }
-  for (const name of ["search.json", "feed.xml", "sitemap.xml"]) {
+  for (const name of ["feed.xml", "sitemap.xml"]) {
     const text = await readFile(`${output}/${name}`, "utf8");
     if (name === "sitemap.xml") {
       const urls = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map(
@@ -202,6 +203,26 @@ try {
     assert(!text.includes("Listed protected article"), name);
     assert(!text.includes("__astro_smoke_test__/draft"), name);
   }
+  assert((await html("search")).includes('id="pagefind-search"'));
+  assert(existsSync(`${output}/pagefind/pagefind.js`));
+  assert(!existsSync(`${output}/search.json`));
+  const fragments = await Promise.all(
+    (await files(`${output}/pagefind/fragment`)).map(async (file) =>
+      gunzipSync(await readFile(file))
+        .toString("utf8")
+        .replaceAll("\u200b", ""),
+    ),
+  );
+  const indexed = fragments.join("\n");
+  assert(indexed.includes("Public body marker"));
+  assert(indexed.includes("Astro smoke test 中文"));
+  assert(!indexed.includes("Protected smoke test"));
+  assert(!indexed.includes("Listed protected article"));
+  assert(!indexed.includes("Draft smoke test"));
+  assert(!indexed.includes(secret));
+  assert(!indexed.includes("other-private-body-marker-2981"));
+  assert(!indexed.includes("private-only-body-marker-2981"));
+  assert(!indexed.includes("astro-unpublished-body-marker-2981"));
   const blog = await html("blog");
   assert(blog.includes("Protected smoke test"));
   assert(blog.includes("Listed protected article"));
@@ -406,4 +427,5 @@ try {
   await rm(fixture, { recursive: true, force: true });
   // Test builds must never be mistaken for deployable site output.
   await rm("dist", { recursive: true, force: true });
+  await rm("public/pagefind", { recursive: true, force: true });
 }

@@ -10,7 +10,6 @@ import type { Post } from "@/services/content/core";
 import {
   filterVisiablePosts,
   filterPublicPosts,
-  sortPostsByDate,
 } from "@/services/content/utils";
 
 const rssProcessor = createHtmlProcessor();
@@ -82,19 +81,6 @@ export function createTagCount(allBlogs: Post[]) {
     }
   }
   return tagCount;
-}
-
-export function createSearchIndex(allBlogs: Post[]) {
-  const blogs = sortPostsByDate(filterPublicPosts(allBlogs));
-  const newBlogs = blogs.map((blog) => {
-    return {
-      content: blog.content,
-      date: blog.date,
-      path: blog.path,
-      title: blog.title,
-    };
-  });
-  return newBlogs;
 }
 
 async function generateRssItemDescription(post: Post) {

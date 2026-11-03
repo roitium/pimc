@@ -101,6 +101,7 @@ export default function PostLayout({
                 title={title}
                 pinned={pinned}
                 readingTime={content.readingTime}
+                indexable={!content.private && !content.draft}
               />
 
               {/* 文章内容 */}
@@ -152,7 +153,7 @@ export default function PostLayout({
 }
 
 // 文章头部组件
-function PostHeader({ date, title, pinned, readingTime }) {
+function PostHeader({ date, title, pinned, readingTime, indexable }) {
   return (
     <header className="pt-6 lg:pb-6">
       <div className="space-y-1 text-center">
@@ -171,7 +172,7 @@ function PostHeader({ date, title, pinned, readingTime }) {
           </div>
         </dl>
         <div>
-          <PageTitle title={title} />
+          <PageTitle title={title} indexable={indexable} />
           <div className="mt-3 flex justify-center text-[12px]">
             <svg
               role="img"

@@ -97,7 +97,10 @@ const jsonLd = {
       )
     ) : (
       Content && (
-        <div data-article-gallery>
+        <div
+          data-article-gallery
+          data-pagefind-body={!post.private && !post.draft ? "" : undefined}
+        >
           <Content components={components} />
         </div>
       )
