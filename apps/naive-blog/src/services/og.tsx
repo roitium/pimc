@@ -1,4 +1,6 @@
-import { ImageResponse } from "@vercel/og";
+import satori from "satori";
+import sharp from "sharp";
+import { loadOgFonts, ogFontFamily } from "@pimc/content/og-fonts";
 import logo from "@/public/static/images/logo.png?inline";
 
 const size = {
@@ -6,7 +8,7 @@ const size = {
   height: 630,
 };
 
-export function generateOG({
+export async function generateOG({
   title,
   description = "还没有简介欸",
   date,
@@ -23,7 +25,7 @@ export function generateOG({
     day: "numeric",
   });
 
-  return new ImageResponse(
+  const svg = await satori(
     <div
       style={{
         width: "100%",
@@ -31,6 +33,7 @@ export function generateOG({
         display: "flex",
         backgroundImage: "linear-gradient(to bottom, #dbf4ff, #fff1f1)",
         padding: "60px",
+        fontFamily: ogFontFamily,
       }}
       lang="zh-CN"
     >
@@ -107,8 +110,16 @@ export function generateOG({
       </div>
     </div>,
     {
-      headers: { "Cache-Control": "public, max-age=86400" },
+      embedFont: true,
+      fonts: await loadOgFonts(),
       ...size,
     },
   );
+  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  return new Response(new Uint8Array(png), {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
 }

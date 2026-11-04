@@ -1,6 +1,6 @@
-import lgThumbnail from "lightgallery/plugins/thumbnail";
-import lgZoom from "lightgallery/plugins/zoom";
-import LightGallery from "lightgallery/react";
+import lgThumbnail from "@lightgallery/react/plugins/thumbnail";
+import lgZoom from "@lightgallery/react/plugins/zoom";
+import { LightGallery, LightGalleryItem } from "@lightgallery/react";
 import Image from "@/components/Image";
 import { memo, useState } from "react";
 import { toast } from "sonner";
@@ -104,25 +104,33 @@ const CommentComponent = memo(function CommentComponent({
           <LightGallery
             speed={500}
             plugins={[lgThumbnail, lgZoom]}
-            elementClassNames="flex flex-row gap-2 flex-wrap not-prose mt-4 mb-3 mr-2"
             licenseKey={import.meta.env.PUBLIC_LIGHT_GALLERY_LICENSE_KEY}
           >
-            {comment.resources.map((resource) => {
-              if (!resource.externalLink) {
-                return null;
-              }
-              return (
-                <a href={resource.externalLink} key={resource.filename}>
-                  <img
-                    alt={resource.filename}
-                    src={resource.externalLink}
-                    height={128}
-                    width={128}
-                    className="h-36 w-36 rounded-xl border object-cover shadow-xs hover:shadow-xl"
-                  />
-                </a>
-              );
-            })}
+            <div className="flex flex-row gap-2 flex-wrap not-prose mt-4 mb-3 mr-2">
+              {comment.resources.map((resource) => {
+                if (!resource.externalLink) {
+                  return null;
+                }
+                return (
+                  <LightGalleryItem
+                    key={resource.filename}
+                    item={{
+                      src: resource.externalLink,
+                      thumb: resource.externalLink,
+                      alt: resource.filename,
+                    }}
+                  >
+                    <img
+                      alt={resource.filename}
+                      src={resource.externalLink}
+                      height={128}
+                      width={128}
+                      className="h-36 w-36 rounded-xl border object-cover shadow-xs hover:shadow-xl"
+                    />
+                  </LightGalleryItem>
+                );
+              })}
+            </div>
           </LightGallery>
         ) : null}
       </div>

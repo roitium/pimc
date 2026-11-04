@@ -17,7 +17,8 @@
     "./styles/headings.css": "./src/styles/headings.css",
     "./styles/links.css": "./src/styles/links.css",
     "./vault": "./src/vault.ts",
-    "./sync": "./src/sync.mjs"
+    "./sync": "./src/sync.mjs",
+    "./og-fonts": "./src/og-fonts.ts"
   },
   "scripts": {
     "check": "tsc --noEmit"
@@ -53,7 +54,7 @@
   "devDependencies": {
     "@types/hast": "3.0.5",
     "@types/mdast": "^4.0.4",
-    "@types/node": "^22.15.33",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.1.8",
     "@types/unist": "^3.0.3",
     "typescript": "^5.8.3"

@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import satori from "satori";
 import sharp from "sharp";
-import { loadOgFonts, ogFontFamily } from "@/utils/loadOgFonts";
+import { loadOgFonts, ogFontFamily } from "@pimc/content/og-fonts";
 import { getPostSlug } from "@/utils/getPostPaths";
 import config from "@/config";
 import { postFilter } from "@/utils/postFilter";

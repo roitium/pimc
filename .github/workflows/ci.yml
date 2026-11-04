@@ -20,7 +20,7 @@ jobs:
           node-version-file: .node-version
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.0
+          bun-version: 1.4.4
       - run: bun install --frozen-lockfile
       - run: bun run --filter @pimc/content check
       - if: env.VAULT_GIT_URL != ''

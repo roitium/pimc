@@ -2,10 +2,10 @@
   "name": "pimc",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.4.0",
+  "packageManager": "bun@1.4.4",
   "engines": {
-    "node": ">=22.23.4",
-    "bun": ">=1.4.0"
+    "node": ">=26.13.0",
+    "bun": ">=1.4.4"
   },
   "workspaces": [
     "apps/*",
@@ -29,7 +29,8 @@
     "sync:contents": "node scripts/sync-contents.mjs"
   },
   "overrides": {
-    "@types/hast": "3.0.5"
+    "@types/hast": "3.0.5",
+    "katex": "^0.19.1"
   },
   "trustedDependencies": [
     "@parcel/watcher",

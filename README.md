@@ -13,7 +13,7 @@
 
 ## 开发
 
-使用 Bun 1.4.0 和 Node.js 24（最低 22.23.4）。Bun 负责安装和 workspace 调度，Astro / Wrangler 与现有 Node 脚本使用 Node.js。
+使用 Bun 1.4.4 和 Node.js 26.13.0 LTS。Bun 负责安装和 workspace 调度，Astro / Wrangler 与现有 Node 脚本使用 Node.js。
 
 ```sh
 bun install --frozen-lockfile

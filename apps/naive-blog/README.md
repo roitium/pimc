@@ -7,7 +7,7 @@
 
 ## 本地开发
 
-推荐 Node.js 24，最低版本为 22.23.4；使用根目录固定的 Bun 1.4.0。依赖在 monorepo 根目录安装，下方应用命令在 `apps/naive-blog` 执行。
+统一使用 Node.js 26.13.0 LTS；使用根目录固定的 Bun 1.4.4。依赖在 monorepo 根目录安装，下方应用命令在 `apps/naive-blog` 执行。
 
 ```sh
 cd ../..

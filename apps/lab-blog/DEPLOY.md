@@ -9,7 +9,7 @@
 
 ## 版本固定
 
-Bun 版本固定在仓库根目录 `package.json` 的 `packageManager` 字段，使用根目录唯一的 `bun.lock`。依赖安装在仓库根目录执行 `bun install --frozen-lockfile`，下文应用命令在 `apps/lab-blog` 执行。Node 推荐 24，仓库最低版本为 22.23.4。
+Bun 版本固定在仓库根目录 `package.json` 的 `packageManager` 字段，使用根目录唯一的 `bun.lock`。依赖安装在仓库根目录执行 `bun install --frozen-lockfile`，下文应用命令在 `apps/lab-blog` 执行。Node 统一使用 26.13.0 LTS。
 
 ## 0. 先改这几处占位信息
 
@@ -58,7 +58,7 @@ Cloudflare 现在推荐新项目用 Workers，而不是 Pages；本项目是纯�
    - Deploy command：`cd apps/lab-blog && bunx --no-install wrangler deploy`
    - Root directory：`/`（默认）
 4. 环境变量（Settings → Build → Variables）：
-   - `NODE_VERSION` = `24`（Astro 7 要求 Node ≥ 22.12）
+   - `NODE_VERSION` = `26.13.0`（与仓库 `.node-version` 保持一致）
    - `VAULT_GIT_URL`：vault 仓库 URL
    - `VAULT_GIT_TOKEN`：私库只读凭据，作为 Build secret
 5. 保存并部署。之后每次 push 到 `main` 都会自动构建发布，PR 会有预览部署。
@@ -74,7 +74,7 @@ bun run deploy          # 构建并上传
 
 ### 方式 C：仍然想用 Cloudflare Pages
 
-可以，纯静态站点 Pages 完全够用：连接 Git 后 Build command 填 `bun run build:lab-blog`、Build output directory 填 `apps/lab-blog/dist`，环境变量加 `NODE_VERSION=24` 即可。区别是 Pages 正在逐步并入 Workers，新项目官方更推荐 Workers。
+可以，纯静态站点 Pages 完全够用：连接 Git 后 Build command 填 `bun run build:lab-blog`、Build output directory 填 `apps/lab-blog/dist`，环境变量加 `NODE_VERSION=26.13.0` 即可。区别是 Pages 正在逐步并入 Workers，新项目官方更推荐 Workers。
 
 ## 4. 绑定自己的域名
 

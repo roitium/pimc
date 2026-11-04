@@ -5,12 +5,12 @@
     "strictNullChecks": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "baseUrl": ".",
     "paths": {
-      "@/data/*": ["data/*"],
-      "@/public/*": ["public/*"],
-      "@/*": ["src/*"]
-    }
+      "@/data/*": ["./data/*"],
+      "@/public/*": ["./public/*"],
+      "@/*": ["./src/*"]
+    },
+    "strict": false
   },
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["node_modules", "dist"]
