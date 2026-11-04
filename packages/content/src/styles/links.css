@@ -1,0 +1,49 @@
+/* Shared article link animation; each site supplies its theme accent. */
+.article-prose
+  a[href]:where(
+    :not([data-footnote-ref], [data-footnote-backref], .data-footnote-backref)
+  ):not(:where(.not-prose, .not-prose *)):not(:has(img, picture, svg)) {
+  --link-resting-line: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration: none;
+  background-image:
+    linear-gradient(var(--article-link-accent), var(--article-link-accent)),
+    linear-gradient(var(--link-resting-line), var(--link-resting-line));
+  background-position: left bottom;
+  background-size:
+    0% 1px,
+    100% 1px;
+  background-repeat: no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition:
+    background-size 200ms ease-out,
+    color 200ms ease-out;
+
+  &:is(:hover, :focus-visible) {
+    color: var(--article-link-accent);
+    background-size:
+      100% 1px,
+      100% 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Headings reveal only the accent line on hover or keyboard focus. */
+.article-prose .content-header > a.heading-anchor {
+  --link-resting-line: transparent;
+  text-decoration: none;
+}
+
+.article-prose .content-header:hover > a.heading-anchor {
+  color: var(--article-link-accent);
+  background-size:
+    100% 1px,
+    100% 1px;
+}
+
+.article-prose .heading-anchor:focus-visible > .content-header-link-icon {
+  opacity: 1;
+}

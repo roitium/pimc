@@ -4,6 +4,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageTitle from "@/components/PageTitle";
 import SocialIcon from "@/components/svgs/social-icons";
 import { components } from "@/components/mdx";
+import "@/css/gallery.css";
 const author = await getEntry("authors", "default");
 if (!author)
   throw new Error("Missing contents/personal-blog/authors/default/index.mdx");

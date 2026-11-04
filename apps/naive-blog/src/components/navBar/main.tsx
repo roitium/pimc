@@ -195,7 +195,7 @@ const FloatNavBar = () => {
     <div
       className={clsx(
         "fixed inset-x-0 top-5 z-100 mx-auto flex max-w-fit items-center justify-center rounded-full bg-slate-2/90 px-5 leading-5 shadow-md shadow-slate-9/50 ring-1 ring-slate-7/50 backdrop-blur-xs",
-        "dark:bg-slatedark-3/90 dark:shadow-slatedark-9/50 dark:ring-slatedark-7/50",
+        "dark:bg-slatedark-3/90 dark:shadow-black/25 dark:ring-slatedark-6/60",
       )}
     >
       <div

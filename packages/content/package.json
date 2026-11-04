@@ -15,6 +15,7 @@
     "./render": "./src/render.ts",
     "./styles/callouts.css": "./src/styles/callouts.css",
     "./styles/headings.css": "./src/styles/headings.css",
+    "./styles/links.css": "./src/styles/links.css",
     "./vault": "./src/vault.ts",
     "./sync": "./src/sync.mjs"
   },

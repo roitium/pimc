@@ -1,0 +1,4 @@
+/* Page-owned CSS lets Astro load and retain gallery styles during navigation. */
+@import "lightgallery/css/lightgallery.css";
+@import "lightgallery/css/lg-thumbnail.css";
+@import "lightgallery/css/lg-zoom.css";

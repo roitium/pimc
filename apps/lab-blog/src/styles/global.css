@@ -6,12 +6,17 @@
 @import "./toc.css";
 @import "@pimc/content/styles/callouts.css";
 @import "@pimc/content/styles/headings.css";
+@import "@pimc/content/styles/links.css";
 @import "katex/dist/katex.min.css";
 /* 霞鹜文楷：按 unicode-range 分包的 woff2，浏览器按需加载所需分片 */
 @import "@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Regular/result.css";
 @import "@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Medium/result.css";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+.article-prose {
+  --article-link-accent: var(--accent);
+}
 
 @layer base {
   * {

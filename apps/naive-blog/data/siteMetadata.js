@@ -4,7 +4,7 @@ const siteMetadata = {
   author: "Roitium",
   description: "Be young & simple, even sometimes naive. ",
   language: "zh-cn",
-  theme: "light", // system, dark or light
+  theme: "system", // system, dark or light
   siteUrl: "https://www.roitium.com",
   siteContentRepo: import.meta.env.PUBLIC_VAULT_REPO_URL || "",
   email: "me@roitium.com",

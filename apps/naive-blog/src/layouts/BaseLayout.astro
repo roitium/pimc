@@ -13,6 +13,7 @@ import "@/css/tailwind.css";
 import "@/css/toc.css";
 import "@pimc/content/styles/callouts.css";
 import "@pimc/content/styles/headings.css";
+import "@pimc/content/styles/links.css";
 
 interface Props {
   title?: string;
@@ -122,18 +123,21 @@ const pathname = withoutBase(Astro.url.pathname);
       data-astro-rerun
       define:vars={{ defaultTheme: site.theme }}
     >
-      try {
-        const theme = localStorage.getItem("theme") || defaultTheme;
+      {
+        let theme = defaultTheme;
+        try {
+          theme = localStorage.getItem("theme") || defaultTheme;
+        } catch {}
         document.documentElement.classList.toggle(
           "dark",
           theme === "dark" ||
             (theme === "system" &&
               matchMedia("(prefers-color-scheme: dark)").matches),
         );
-      } catch {}
+      }
     </script>
   </head>
-  <body class="h-full min-h-screen w-full bg-slate-2 font-app text-slate-12 antialiased accent-blue-5 dark:bg-slatedark-2/60 dark:text-slatedark-12 dark:accent-bluedark-5">
+  <body class="h-full min-h-screen w-full bg-slate-2 font-app text-slate-12 antialiased accent-blue-5 dark:bg-slatedark-1 dark:text-slatedark-12 dark:accent-bluedark-5">
     <Toaster client:load />
     <NavigationIsland
       pathname={pathname}
@@ -151,6 +155,7 @@ const pathname = withoutBase(Astro.url.pathname);
       import { initArticle } from "@/utils/article-client";
       import { navigate } from "astro:transitions/client";
       import { withBase } from "@/utils/paths";
+      import "@/utils/theme";
       document.addEventListener("astro:page-load", initArticle);
       document.addEventListener("keydown", (event) => {
         if (
@@ -164,11 +169,6 @@ const pathname = withoutBase(Astro.url.pathname);
           if (input) input.focus();
           else void navigate(withBase("/search"));
         }
-      });
-      const media = matchMedia("(prefers-color-scheme: dark)");
-      media.addEventListener("change", () => {
-        if (localStorage.getItem("theme") === "system")
-          document.documentElement.classList.toggle("dark", media.matches);
       });
     </script>
   </body>

@@ -1,8 +1,5 @@
 import clsx from "clsx";
 import type { ApiMemo } from "@/types/memos";
-import "lightgallery/css/lg-thumbnail.css";
-import "lightgallery/css/lg-zoom.css";
-import "lightgallery/css/lightgallery.css";
 import { useEffect, useRef, useState } from "react";
 import { fetchMemos } from "./fetchFunctions";
 import { MemoRowComponent } from "./singleMemoRow";

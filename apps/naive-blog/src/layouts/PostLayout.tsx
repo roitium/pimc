@@ -82,7 +82,7 @@ export default function PostLayout({
               />
 
               {/* 文章内容 */}
-              <div className="prose prose-slate dark:prose-invert max-w-none pt-10 pb-8">
+              <div className="article-prose prose prose-slate dark:prose-invert max-w-none pt-10 pb-8">
                 {children}
               </div>
 
