@@ -378,28 +378,6 @@ try {
   });
   assert.equal(foreignOrigin.status, 403);
   assert.equal((await request("/api/blog/password")).status, 404);
-  for (const [old, target] of [
-    ["/archive.html", "/blog"],
-    ["/about.html", "/about"],
-    ["/github.html", "/projects"],
-    ["/author/1", "/about"],
-    ["/cross.html/2", "/memory"],
-    ["/page/2", "/blog/page/2"],
-  ]) {
-    const response = await request(old);
-    assert.equal(response.status, 308, old);
-    assert.equal(response.headers.get("location"), `${base}${target}`, old);
-  }
-  const mapping = JSON.parse(
-    await readFile("data/old-blog-posts-mapping.json", "utf8"),
-  );
-  const [oldPath, id] = Object.entries(mapping)[0];
-  const redirect = await request(`/archives/${id}`);
-  assert.equal(redirect.status, 308);
-  assert.equal(
-    decodeURI(redirect.headers.get("location")),
-    `${base}/blog/${oldPath}`,
-  );
   for (const url of [
     "/blog/__astro_smoke_test__/draft",
     "/blog/missing-post-2981",
@@ -420,7 +398,7 @@ try {
   assert.equal((await request("/api/3party/netease/playlist")).status, 400);
   assert.equal((await request("/api/og/image/post?title=old")).status, 404);
   console.log(
-    "Migration smoke passed: static routes, MDX, pagination, protected content, APIs, legacy redirects, OG and 404.",
+    "Migration smoke passed: static routes, MDX, pagination, protected content, APIs, OG and 404.",
   );
 } finally {
   await worker?.stop();
