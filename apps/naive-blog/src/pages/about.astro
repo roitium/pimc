@@ -3,7 +3,7 @@ import { getEntry, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageTitle from "@/components/PageTitle";
 import SocialIcon from "@/components/svgs/social-icons";
-import { components } from "@/components/mdx";
+import { withBase } from "@/utils/paths";
 import "@/css/gallery.css";
 const author = await getEntry("authors", "default");
 if (!author)
@@ -19,11 +19,13 @@ const { name, avatar, occupation, company, email, twitter, linkedin, github } =
     <div class="items-start space-y-2 xl:grid xl:grid-cols-3 xl:gap-x-8 xl:space-y-0">
       <div class="flex flex-col items-center space-x-2 pt-8">
         {avatar && (
-          <components.Image
-            src={avatar}
+          <img
+            src={withBase(avatar)}
             alt="avatar"
             width={192}
             height={192}
+            loading="lazy"
+            decoding="async"
             class="h-48 w-48 rounded-full"
           />
         )}
@@ -46,7 +48,7 @@ const { name, avatar, occupation, company, email, twitter, linkedin, github } =
         class="prose prose-slate dark:prose-invert max-w-none pt-8 pb-8 xl:col-span-2"
         data-article-gallery
       >
-        <Content components={components} />
+        <Content />
       </article>
     </div>
   </div>

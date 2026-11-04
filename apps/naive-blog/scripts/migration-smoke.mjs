@@ -32,6 +32,13 @@ async function files(dir) {
     )
   ).flat();
 }
+async function outputHasClientCode(marker) {
+  for (const file of await files(output)) {
+    if (!file.endsWith(".js")) continue;
+    if ((await readFile(file, "utf8")).includes(marker)) return true;
+  }
+  return false;
+}
 
 try {
   await mkdir(`${fixture}/nested/中文`, { recursive: true });
@@ -181,7 +188,10 @@ try {
   assert(article.includes('class="astro-code'));
   assert(article.includes("example.ts"));
   assert(article.includes("highlighted"));
-  assert(article.includes("data-copy-code"));
+  assert(
+    await outputHasClientCode("已复制"),
+    "Copy button logic was not bundled into client code",
+  );
   assert(article.includes('id="repeated-1"'));
   assert(article.includes('href="#repeated-1"'));
   assert(article.includes('class="heading-anchor"'));
@@ -372,7 +382,6 @@ try {
     "Unlocked article must receive its compiled TOC",
   );
   assert(unlocked.includes('class="katex"'));
-  assert(unlocked.includes("data-copy-code"));
   assert(unlocked.includes("private-local-component-74529"));
   assert(unlocked.includes('alt="Relative image"'));
   assert(!unlocked.includes("article-password"));

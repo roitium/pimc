@@ -136,6 +136,13 @@
   --article-link-accent: hsl(210, 100%, 72%);
 }
 
+/* Wide tables scroll inside the article column instead of widening the page. */
+.article-prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still

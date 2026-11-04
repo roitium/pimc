@@ -7,7 +7,6 @@ import type { Toc } from "@pimc/content/toc";
 import ArticleControls from "@/components/ArticlePageButtonGroup";
 import Comments from "@/components/Comments";
 import PasswordForm from "@/components/ArticlePasswordForm";
-import { components } from "@/components/mdx";
 import { allPosts, allAuthors, type Post } from "@/services/content/core";
 import {
   allCoreContent,
@@ -93,7 +92,7 @@ const jsonLd = {
           data-article-gallery
           data-pagefind-body={!post.private && !post.draft ? "" : undefined}
         >
-          <Content components={components} />
+          <Content />
         </div>
       )
     )}
