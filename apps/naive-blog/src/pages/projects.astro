@@ -1,8 +1,33 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Projects from "@/components/Projects";
+import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
+const entries = await getCollection(
+  "projects",
+  ({ data }) => data.publish_to.includes("personal") && !data.draft,
+);
+entries.sort((a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id));
+const projects = await Promise.all(
+  entries.map(async ({ data }) => ({
+    title: data.title,
+    description: data.description,
+    href: data.href,
+    imgSrc: data.image
+      ? (
+          await getImage({
+            src: data.image,
+            width: 544,
+            height: 306,
+            fit: "cover",
+            format: "webp",
+          })
+        ).src
+      : undefined,
+  })),
+);
 ---
 
 <BaseLayout title="Projects">
-  <Projects />
+  <Projects projects={projects} />
 </BaseLayout>

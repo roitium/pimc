@@ -14,6 +14,7 @@ import {
   sortPostsByDate,
 } from "@/services/content/utils";
 import site from "@/data/siteMetadata";
+import { withBase } from "@/utils/paths";
 import "@/css/shiki.css";
 import "@/css/gallery.css";
 import "katex/dist/katex.css";
@@ -33,7 +34,7 @@ const next =
   index >= 0 && sorted[index - 1]
     ? { path: sorted[index - 1].path, title: sorted[index - 1].title }
     : undefined;
-const authors = allAuthors.filter((author) => author.slug === "default");
+const authors = allAuthors;
 const rendered = showBody
   ? await render((await getEntry("posts", post._id))!)
   : null;
@@ -47,7 +48,7 @@ const jsonLd = {
   datePublished: post.date.toISOString(),
   dateModified: (post.updated_at || post.date).toISOString(),
   description: post.description,
-  image: site.socialBanner,
+  image: new URL(withBase(site.socialBanner), site.siteUrl).href,
   url: new URL(`blog/${post.slug}`, `${site.siteUrl}/`).href,
   author: authors.map((author) => ({ "@type": "Person", name: author.name })),
 };

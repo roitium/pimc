@@ -21,6 +21,10 @@ bun run dev:lab-blog
 - 模板功能：vault 中的 `lab-blog/posts/astropaper-guide/index.md`
 - 许可证：仓库根目录 [MIT License](../../LICENSE)
 
+## 图片优化
+
+文章中的本地 Markdown / MDX 图片（例如 `![说明](./cover.png)`）在构建时通过 Astro 默认的 Sharp 服务优化。Lab Blog 是纯静态站点，由 Wrangler 上传 `dist/` 到 Cloudflare Workers 静态资源托管，无需 Cloudflare adapter 或 Cloudflare Images。Naive Blog 的 adapter 用于服务端路由，其 `imageService: "compile"` 显式选择构建时图片优化；Lab Blog 已默认在 Node 构建时处理图片。`public/` 文件和原生 `<img>` 标签不经过此管线；SVG 保持矢量格式。
+
 ## 文章目录与阅读进度
 
 与 Naive Blog 共用 Fumadocs 编译期目录、React 目录组件和正文阅读进度计算。`.md`、`.mdx` 的标题及目录来自同一次编译，目录不会包含标题前的装饰性 `#`。目录标题为纯文本，正文仍保留强调、行内代码和公式的排版。

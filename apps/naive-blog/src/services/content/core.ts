@@ -2,6 +2,7 @@ import { getCollection } from "astro:content";
 import readingTime from "reading-time";
 import { articleSourcePath } from "@pimc/content/vault";
 import { normalizeArticleSlug } from "@pimc/content/paths";
+import site from "@/data/siteMetadata";
 
 // Keep framework data on the server. Client islands import these types only.
 export const allPosts = (
@@ -26,8 +27,15 @@ export const allPosts = (
   readingTime: readingTime(entry.body || "").minutes,
 }));
 export type Post = (typeof allPosts)[number];
-export const allAuthors = (await getCollection("authors")).map((entry) => ({
+export const allAuthors = (
+  await getCollection(
+    "pages",
+    ({ id, data }) =>
+      id === "about" && data.publish_to.includes("personal") && !data.draft,
+  )
+).map((entry) => ({
   ...entry.data,
+  name: entry.data.name || site.author,
   slug: entry.id,
 }));
 export type Author = (typeof allAuthors)[number];

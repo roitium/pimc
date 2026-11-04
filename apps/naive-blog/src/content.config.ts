@@ -7,7 +7,7 @@ import {
   contentsUrl,
 } from "@pimc/content/vault";
 import { normalizeArticleSlug } from "@pimc/content/paths";
-import { z, postSchema } from "@pimc/content/schema";
+import { z, postSchema, postFields } from "@pimc/content/schema";
 
 const posts = defineCollection({
   loader: createArticleLoader({
@@ -23,15 +23,20 @@ const posts = defineCollection({
     canonicalUrl: z.string().optional(),
   }),
 });
-const authors = defineCollection({
+const pages = defineCollection({
   loader: glob({
-    pattern: "**/*.mdx",
-    base: contentsUrl("personal-blog/authors"),
-    generateId: ({ entry }) => entry.replace(/\/index\.mdx$/, ""),
+    pattern: "**/index.{md,mdx}",
+    base: contentsUrl("personal-blog/pages"),
+    generateId: ({ entry }) => entry.replace(/\/index\.(md|mdx)$/, ""),
   }),
   schema: z.object({
-    name: z.string(),
-    avatar: z.string().optional(),
+    id: z.uuid(),
+    title: z.string(),
+    subtitle: z.string().optional(),
+    description: z.string().default(""),
+    publish_to: postFields.publish_to,
+    draft: postFields.draft,
+    name: z.string().optional(),
     occupation: z.string().optional(),
     company: z.string().optional(),
     email: z.string().optional(),
@@ -41,4 +46,22 @@ const authors = defineCollection({
     layout: z.string().optional(),
   }),
 });
-export const collections = { posts, authors };
+const projects = defineCollection({
+  loader: glob({
+    pattern: "**/index.{md,mdx}",
+    base: contentsUrl("personal-blog/projects"),
+    generateId: ({ entry }) => entry.replace(/\/index\.(md|mdx)$/, ""),
+  }),
+  schema: ({ image }) =>
+    z.object({
+      id: z.uuid(),
+      title: z.string(),
+      description: z.string(),
+      href: z.url().optional(),
+      image: image().optional(),
+      order: z.number().default(0),
+      publish_to: postFields.publish_to,
+      draft: postFields.draft,
+    }),
+});
+export const collections = { posts, pages, projects };

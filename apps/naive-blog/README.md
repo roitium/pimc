@@ -39,8 +39,12 @@ bun run deploy    # 构建并发布到 Cloudflare Workers
 
 站点信息位于 `data/siteMetadata.js`，分类显示名称与简介位于 `data/category-mapping.ts`。
 
+联系邮箱与 Gravatar 邮箱统一配置在 `data/identity.js`。每次 `build:site`（包括正常构建与部署）先通过邮箱的 SHA-256 哈希下载 Gravatar，生成本地 `logo.png` 及各尺寸 favicon，再生成文章分享图和默认 `/og.png` 分享图。首页、回忆、评论和关于页统一使用本地头像，浏览器不会请求 Gravatar。修改 Gravatar 后需要重新构建并部署，社交平台的分享缓存可能延迟更新。头像下载失败或无法解码时会中止构建，避免悄悄发布旧头像；开发服务器沿用上次生成的资源，也可运行 `node scripts/sync-avatar.mjs` 单独刷新。
+
 - 文章直接读取根目录 `contents/{personal-blog,lab-blog}/posts/`，按 `publish_to` 包含 `personal` 筛选；修改独立 vault 中的源文件，不要修改生成的镜像。
-- 作者资料位于 `contents/personal-blog/authors/default/index.mdx`。
+- 关于页正文与作者资料位于 vault 的 `personal-blog/pages/about/index.mdx`，由独立的 `pages` 集合读取；头像统一使用构建时同步的 Gravatar 本地资源。
+- 项目资料位于 vault 的 `personal-blog/projects/<项目名>/index.md`，配图放在同目录，并在 frontmatter 用 `image: ./cover.png` 引用。项目包含 `title`、`description`、`href`、`order` 等字段，卡片按 `order` 升序排列，配图在构建时输出为本地 WebP。当前仅展示 frontmatter，Markdown 正文预留。
+- 页面和项目各自包含稳定 UUID `id`，使用 `publish_to: [personal]` 与 `draft: false` 控制发布，不进入文章列表、文章 RSS 或文章搜索索引。资料修改后需要同步 vault 并重新构建部署；内容库推送本身不会自动触发应用构建。
 - 一篇文章组织为 `tech/hello/index.md` 或 `index.mdx`，同目录放图片和自定义组件，通过相对路径引用。URL 为 `/blog/tech/hello`；组织目录 `personal-blog/posts` 不进入 URL。
 - 构建和开发启动时，从根目录环境变量配置的 vault 同步到 `contents/`。文章专属组件不再放在应用的 `src/components` 中。
 - 目录层级决定分类，例如 `contents/personal-blog/posts/programming/typescript/index.mdx` 对应 `/blog/programming/typescript` 与 `/categories/blog/programming`。

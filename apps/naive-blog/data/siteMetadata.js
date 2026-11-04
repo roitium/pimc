@@ -1,3 +1,5 @@
+import { email } from "./identity.js";
+
 /** @type {import("../src/types/siteMetadata").SiteConfig } */
 const siteMetadata = {
   title: "Roitiumの自留地",
@@ -7,7 +9,7 @@ const siteMetadata = {
   theme: "system", // system, dark or light
   siteUrl: "https://www.roitium.com",
   siteContentRepo: import.meta.env.PUBLIC_VAULT_REPO_URL || "",
-  email: "me@roitium.com",
+  email,
   github: "https://github.com/roitium",
   x: "https://x.com/yoshino_2333",
   locale: "zh-CN",
@@ -29,6 +31,6 @@ const siteMetadata = {
   },
 };
 
-siteMetadata.socialBanner = `${siteMetadata.siteUrl}/static/images/og.jpg`;
+siteMetadata.socialBanner = "/og.png";
 
 export default siteMetadata;

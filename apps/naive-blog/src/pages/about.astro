@@ -4,33 +4,41 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageTitle from "@/components/PageTitle";
 import SocialIcon from "@/components/svgs/social-icons";
 import { withBase } from "@/utils/paths";
+import site from "@/data/siteMetadata";
 import "@/css/gallery.css";
-const author = await getEntry("authors", "default");
-if (!author)
-  throw new Error("Missing contents/personal-blog/authors/default/index.mdx");
+const author = await getEntry("pages", "about");
+if (
+  !author ||
+  !author.data.publish_to.includes("personal") ||
+  author.data.draft
+)
+  throw new Error(
+    "Missing published contents/personal-blog/pages/about/index.md or index.mdx",
+  );
 const { Content } = await render(author);
-const { name, avatar, occupation, company, email, twitter, linkedin, github } =
+const { name, occupation, company, email, twitter, linkedin, github } =
   author.data;
 ---
 
-<BaseLayout title="About">
+<BaseLayout
+  title={author.data.title}
+  description={author.data.description || undefined}
+>
   <div class="lg:mx-auto lg:max-w-(--breakpoint-lg)">
-    <PageTitle title="About" subtitle="我是谁？" />
+    <PageTitle title={author.data.title} subtitle={author.data.subtitle} />
     <div class="items-start space-y-2 xl:grid xl:grid-cols-3 xl:gap-x-8 xl:space-y-0">
       <div class="flex flex-col items-center space-x-2 pt-8">
-        {avatar && (
-          <img
-            src={withBase(avatar)}
-            alt="avatar"
-            width={192}
-            height={192}
-            loading="lazy"
-            decoding="async"
-            class="h-48 w-48 rounded-full"
-          />
-        )}
+        <img
+          src={withBase("/static/images/logo.png")}
+          alt="avatar"
+          width={192}
+          height={192}
+          loading="lazy"
+          decoding="async"
+          class="h-48 w-48 rounded-full"
+        />
         <h3 class="pt-4 pb-2 font-bold text-2xl leading-8 tracking-tight">
-          {name}
+          {name || site.author}
         </h3>
         <div class="text-gray-500 dark:text-gray-400">{occupation}</div>
         <div class="text-gray-500 dark:text-gray-400">{company}</div>

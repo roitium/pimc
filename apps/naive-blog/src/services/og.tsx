@@ -15,10 +15,10 @@ export async function generateOG({
 }: {
   title: string;
   description?: string;
-  date: Date;
+  date?: Date;
 }) {
   const websiteLogo = logo;
-  const publishedDate = date.toLocaleDateString("zh-CN", {
+  const publishedDate = date?.toLocaleDateString("zh-CN", {
     timeZone: "Asia/Shanghai",
     year: "numeric",
     month: "long",

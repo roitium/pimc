@@ -14,7 +14,7 @@
     "test:smoke": "node scripts/migration-smoke.mjs",
     "deploy": "bun run build && wrangler deploy",
     "deploy:check": "wrangler deploy --dry-run",
-    "build:site": "astro build && node scripts/build-search.mjs",
+    "build:site": "node scripts/sync-avatar.mjs && astro build && node scripts/build-search.mjs",
     "dev:site": "astro dev --port 4322"
   },
   "dependencies": {
