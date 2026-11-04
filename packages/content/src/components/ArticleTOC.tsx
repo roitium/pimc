@@ -1,9 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import {
   AnchorProvider,
   ScrollProvider,
   TOCItem,
   useActiveAnchor,
+  useActiveAnchors,
 } from "fumadocs-core/toc";
 import type { Toc } from "@pimc/content/toc";
 
@@ -11,6 +18,7 @@ export interface TOCInlineProps {
   toc?: Toc;
   onNavigate?: () => void;
   headingOffset?: number;
+  animatedIndicator?: boolean;
 }
 
 export function useArticleReadingProgress(headingOffset = 80) {
@@ -71,11 +79,68 @@ function ReadingProgress({ headingOffset }: { headingOffset: number }) {
   );
 }
 
+function ActiveIndicator({
+  trackRef,
+}: {
+  trackRef: RefObject<HTMLDivElement | null>;
+}) {
+  const activeAnchors = useActiveAnchors();
+  const [bounds, setBounds] = useState<{ top: number; height: number } | null>(
+    null,
+  );
+
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const measure = () => {
+      const anchors = track.querySelectorAll<HTMLElement>(
+        'a[data-active="true"]',
+      );
+      if (!anchors.length || !track.getClientRects().length) {
+        setBounds(null);
+        return;
+      }
+      const origin = track.getBoundingClientRect().top;
+      const first = anchors[0].getBoundingClientRect();
+      const last = anchors[anchors.length - 1].getBoundingClientRect();
+      const top = first.top - origin;
+      const height = last.bottom - first.top;
+      setBounds((previous) =>
+        previous?.top === top && previous.height === height
+          ? previous
+          : { top, height },
+      );
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [activeAnchors, trackRef]);
+
+  return (
+    bounds && (
+      <span
+        aria-hidden="true"
+        className="article-toc-indicator"
+        style={{
+          transform: `translateY(${bounds.top}px)`,
+          height: bounds.height,
+        }}
+      />
+    )
+  );
+}
+
 function TOCLinks({
   toc,
   onNavigate,
-}: Required<Pick<TOCInlineProps, "toc">> & Pick<TOCInlineProps, "onNavigate">) {
+  animatedIndicator,
+}: Required<Pick<TOCInlineProps, "toc">> &
+  Pick<TOCInlineProps, "onNavigate" | "animatedIndicator">) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const active = useActiveAnchor();
   const minDepth = Math.min(...toc.map((item) => item.depth));
 
@@ -87,24 +152,27 @@ function TOCLinks({
       aria-label="文章目录，可滚动"
     >
       <ScrollProvider containerRef={containerRef}>
-        <ul className="article-toc-list">
-          {toc.map((item) => (
-            <li key={item.url}>
-              <TOCItem
-                href={item.url}
-                aria-current={
-                  active === item.url.slice(1) ? "location" : undefined
-                }
-                style={{
-                  paddingInlineStart: 16 + (item.depth - minDepth) * 12,
-                }}
-                onClick={onNavigate}
-              >
-                {item.title}
-              </TOCItem>
-            </li>
-          ))}
-        </ul>
+        <div className="article-toc-track" ref={trackRef}>
+          <ul className="article-toc-list">
+            {toc.map((item) => (
+              <li key={item.url}>
+                <TOCItem
+                  href={item.url}
+                  aria-current={
+                    active === item.url.slice(1) ? "location" : undefined
+                  }
+                  style={{
+                    paddingInlineStart: 16 + (item.depth - minDepth) * 12,
+                  }}
+                  onClick={onNavigate}
+                >
+                  {item.title}
+                </TOCItem>
+              </li>
+            ))}
+          </ul>
+          {animatedIndicator && <ActiveIndicator trackRef={trackRef} />}
+        </div>
       </ScrollProvider>
     </div>
   );
@@ -114,14 +182,22 @@ export default function TOC({
   toc = [],
   onNavigate,
   headingOffset = 80,
+  animatedIndicator = false,
 }: TOCInlineProps) {
   return (
-    <div className="article-toc">
+    <div
+      className="article-toc"
+      data-animated-indicator={animatedIndicator || undefined}
+    >
       <ReadingProgress headingOffset={headingOffset} />
       {toc.length > 0 && (
         <nav aria-label="文章目录">
           <AnchorProvider toc={toc}>
-            <TOCLinks toc={toc} onNavigate={onNavigate} />
+            <TOCLinks
+              toc={toc}
+              onNavigate={onNavigate}
+              animatedIndicator={animatedIndicator}
+            />
           </AnchorProvider>
         </nav>
       )}

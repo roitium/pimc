@@ -46,7 +46,7 @@ const toc: Toc = remarkPluginFrontmatter.articleToc;
 ---
 ```
 
-`articleToc` 是编译器保留的派生字段，不要在文章 frontmatter 中手写。目录语法、显式 ID 的唯一性要求、组件锚点约定和交互行为见 [Naive Blog 文章目录说明](../../apps/naive-blog/README.md#文章目录与标题锚点)。这些扩展在 `personal` 和 `lab` 两个 profile 均启用。共享 React 组件通过 `headingOffset` 适配各站导航偏移，通过 `--toc-muted`、`--toc-line`、`--toc-active` 和 `--toc-max-height` 适配主题与可视高度；引入时需加载基础目录样式。
+`articleToc` 是编译器保留的派生字段，不要在文章 frontmatter 中手写。目录语法、显式 ID 的唯一性要求、组件锚点约定和交互行为见 [Naive Blog 文章目录说明](../../apps/naive-blog/README.md#文章目录与标题锚点)。这些扩展在 `personal` 和 `lab` 两个 profile 均启用。共享 React 组件通过 `headingOffset` 适配各站导航偏移，通过 `--toc-muted`、`--toc-line`、`--toc-active` 和 `--toc-max-height` 适配主题与可视高度；引入时需加载基础目录样式。`animatedIndicator` 可选开启连续高亮条的移动与伸缩动画，默认关闭，Lab Blog 已启用；该动画尊重 `prefers-reduced-motion`。
 
 ## Collection 配置
 

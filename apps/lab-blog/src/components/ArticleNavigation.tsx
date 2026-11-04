@@ -21,7 +21,7 @@ export default function ArticleNavigation({ toc }: { toc: Toc }) {
       >
         <div className="lab-toc-sticky">
           <h2 className="lab-toc-title">本文目录</h2>
-          <TOC toc={toc} headingOffset={16} />
+          <TOC toc={toc} headingOffset={16} animatedIndicator />
         </div>
       </aside>
       <Drawer.Root open={open} onOpenChange={setOpen}>
@@ -55,6 +55,7 @@ export default function ArticleNavigation({ toc }: { toc: Toc }) {
               <TOC
                 toc={toc}
                 headingOffset={16}
+                animatedIndicator
                 onNavigate={() => setOpen(false)}
               />
             </div>
