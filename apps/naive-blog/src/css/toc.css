@@ -1,12 +1,14 @@
 @import "@pimc/content/styles/toc.css";
 
 .article-toc {
+  --toc-muted-compact: var(--color-slate-9);
   --toc-muted: var(--color-slate-11);
   --toc-line: var(--color-slate-6);
   --toc-active: var(--color-blue-11);
 }
 
 .dark .article-toc {
+  --toc-muted-compact: var(--color-slatedark-9);
   --toc-muted: var(--color-slatedark-11);
   --toc-line: var(--color-slatedark-6);
   --toc-active: var(--color-bluedark-11);

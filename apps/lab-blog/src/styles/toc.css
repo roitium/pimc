@@ -20,6 +20,11 @@
   --toc-line: var(--muted);
   --toc-active: var(--accent);
   --toc-max-height: calc(100dvh - 10rem);
+  --toc-muted-compact: color-mix(
+    in srgb,
+    var(--muted-foreground) 75%,
+    var(--background)
+  );
 }
 
 .lab-toc-sidebar {

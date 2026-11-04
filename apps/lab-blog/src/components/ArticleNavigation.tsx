@@ -20,8 +20,12 @@ export default function ArticleNavigation({ toc }: { toc: Toc }) {
         data-pagefind-ignore
       >
         <div className="lab-toc-sticky">
-          <h2 className="lab-toc-title">本文目录</h2>
-          <TOC toc={toc} headingOffset={16} animatedIndicator />
+          <TOC
+            toc={toc}
+            headingOffset={16}
+            animatedIndicator
+            collapseInactive
+          />
         </div>
       </aside>
       <Drawer.Root open={open} onOpenChange={setOpen}>

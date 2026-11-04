@@ -19,6 +19,7 @@ export interface TOCInlineProps {
   onNavigate?: () => void;
   headingOffset?: number;
   animatedIndicator?: boolean;
+  collapseInactive?: boolean;
 }
 
 export function useArticleReadingProgress(headingOffset = 80) {
@@ -137,12 +138,23 @@ function TOCLinks({
   toc,
   onNavigate,
   animatedIndicator,
+  collapseInactive,
 }: Required<Pick<TOCInlineProps, "toc">> &
-  Pick<TOCInlineProps, "onNavigate" | "animatedIndicator">) {
+  Pick<
+    TOCInlineProps,
+    "onNavigate" | "animatedIndicator" | "collapseInactive"
+  >) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const active = useActiveAnchor();
   const minDepth = Math.min(...toc.map((item) => item.depth));
+  const activeIndex = toc.findIndex((item) => item.url.slice(1) === active);
+  let activeChapter = -1;
+  const chapters = toc.map((item, index) => {
+    if (item.depth === minDepth) activeChapter = index;
+    return activeChapter;
+  });
+  const expandedChapter = activeIndex >= 0 ? chapters[activeIndex] : -1;
 
   return (
     <div
@@ -154,20 +166,31 @@ function TOCLinks({
       <ScrollProvider containerRef={containerRef}>
         <div className="article-toc-track" ref={trackRef}>
           <ul className="article-toc-list">
-            {toc.map((item) => (
-              <li key={item.url}>
-                <TOCItem
-                  href={item.url}
-                  aria-current={
-                    active === item.url.slice(1) ? "location" : undefined
-                  }
-                  style={{
-                    paddingInlineStart: 16 + (item.depth - minDepth) * 12,
-                  }}
-                  onClick={onNavigate}
-                >
-                  {item.title}
-                </TOCItem>
+            {toc.map((item, index) => (
+              <li
+                key={item.url}
+                data-collapsed={
+                  collapseInactive &&
+                  item.depth > minDepth &&
+                  chapters[index] !== expandedChapter
+                    ? "true"
+                    : undefined
+                }
+              >
+                <div className="article-toc-entry">
+                  <TOCItem
+                    href={item.url}
+                    aria-current={
+                      active === item.url.slice(1) ? "location" : undefined
+                    }
+                    style={{
+                      paddingInlineStart: `calc(var(--toc-indent-base, 16px) + ${(item.depth - minDepth) * 12}px)`,
+                    }}
+                    onClick={onNavigate}
+                  >
+                    <span className="article-toc-label">{item.title}</span>
+                  </TOCItem>
+                </div>
               </li>
             ))}
           </ul>
@@ -183,10 +206,12 @@ export default function TOC({
   onNavigate,
   headingOffset = 80,
   animatedIndicator = true,
+  collapseInactive = false,
 }: TOCInlineProps) {
   return (
     <div
       className="article-toc"
+      data-collapse-inactive={collapseInactive || undefined}
       data-animated-indicator={animatedIndicator || undefined}
     >
       <ReadingProgress headingOffset={headingOffset} />
@@ -197,6 +222,7 @@ export default function TOC({
               toc={toc}
               onNavigate={onNavigate}
               animatedIndicator={animatedIndicator}
+              collapseInactive={collapseInactive}
             />
           </AnchorProvider>
         </nav>

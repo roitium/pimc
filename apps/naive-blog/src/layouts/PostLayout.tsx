@@ -1,4 +1,3 @@
-import Image from "@/components/Image";
 import PageTitle from "@/components/PageTitle";
 import "@/css/markdown.css";
 import { slug as _slug } from "github-slugger";
@@ -7,9 +6,8 @@ import type { ReactNode } from "react";
 import categoryMapping from "@/data/category-mapping";
 import siteMetadata from "@/data/siteMetadata";
 import { Fragment } from "react";
-import type { Author, Post } from "@/services/content/core";
+import type { Post } from "@/services/content/core";
 import type { CoreContent } from "@/services/content/utils";
-import { cn } from "@/utils/classname";
 
 const editUrl = (path: string) =>
   `${siteMetadata.siteContentRepo}/blob/main/${path}`;
@@ -23,7 +21,6 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 
 interface LayoutProps {
   content: CoreContent<Post>;
-  authorDetails: CoreContent<Author>[];
   next?: { path: string; title: string };
   prev?: { path: string; title: string };
   children: ReactNode;
@@ -50,7 +47,6 @@ function generateCategoryTree(categories: string[]) {
 
 export default function PostLayout({
   content,
-  authorDetails,
   next,
   prev,
   children,
@@ -61,7 +57,6 @@ export default function PostLayout({
   const { _meta, path, title, tags, pinned } = content;
   const { date } = content;
 
-  const basePath = path.split("/")[0];
   const paths = path.split("/");
   // 去掉最后一个元素，因为它是文章名
   paths.pop();
@@ -72,27 +67,9 @@ export default function PostLayout({
       {controls}
       <article>
         <div className="mx-auto px-4 sm:px-6 xl:px-0">
-          <div className="flex flex-col lg:flex-row">
-            {/* 左侧边栏（桌面端）及作者信息（移动端） */}
-            <div className="order-1 lg:block lg:pl-6 xl:pl-8 lg:w-[220px] 2xl:w-[280px] shrink-0">
-              <div className="lg:hidden">
-                <AuthorSection authorDetails={authorDetails} />
-              </div>
-              <aside className="sticky top-20 hidden lg:block">
-                <AuthorSection authorDetails={authorDetails} />
-                <PostNavigation
-                  categories={categories}
-                  tags={tags}
-                  next={next}
-                  prev={prev}
-                  basePath={basePath}
-                  _slug={_slug}
-                />
-              </aside>
-            </div>
-
+          <div className="flex flex-col lg:mx-auto lg:max-w-[1048px] lg:flex-row lg:gap-10">
             {/* 主内容区域 */}
-            <div className="order-2 divide-y divide-slate-5 lg:flex-1 dark:divide-slatedark-5 lg:px-8 xl:px-12 2xl:px-16 min-w-0">
+            <div className="order-2 lg:flex-1 lg:max-w-[720px] min-w-0">
               {/* 文章头部 */}
               <PostHeader
                 date={date}
@@ -100,12 +77,16 @@ export default function PostLayout({
                 pinned={pinned}
                 readingTime={content.readingTime}
                 indexable={!content.private && !content.draft}
+                categories={categories}
+                tags={tags}
               />
 
               {/* 文章内容 */}
               <div className="prose prose-slate dark:prose-invert max-w-none pt-10 pb-8">
                 {children}
               </div>
+
+              <PostNavigation next={next} prev={prev} />
 
               {/* 文章底部链接 */}
               {siteMetadata.siteContentRepo && (
@@ -128,21 +109,9 @@ export default function PostLayout({
             </div>
 
             {/* 目录 - 右侧边栏（仅桌面显示） */}
-            <div className="hidden lg:order-3 lg:block lg:w-[240px] xl:w-[280px] shrink-0 lg:pr-6 xl:pr-8">
+            <div className="hidden lg:order-3 lg:block lg:w-[240px] xl:w-[288px] shrink-0">
               {tableOfContents}
             </div>
-          </div>
-
-          {/* 导航区域（移动端显示在底部） */}
-          <div className="mt-8 lg:hidden">
-            <PostNavigation
-              categories={categories}
-              tags={tags}
-              next={next}
-              prev={prev}
-              basePath={basePath}
-              _slug={_slug}
-            />
           </div>
         </div>
       </article>
@@ -151,46 +120,88 @@ export default function PostLayout({
 }
 
 // 文章头部组件
-function PostHeader({ date, title, pinned, readingTime, indexable }) {
+function PostHeader({
+  date,
+  title,
+  pinned,
+  readingTime,
+  indexable,
+  categories,
+  tags,
+}: Pick<
+  CoreContent<Post>,
+  "date" | "title" | "pinned" | "readingTime" | "tags"
+> & {
+  indexable: boolean;
+  categories: ReturnType<typeof generateCategoryTree>;
+}) {
   return (
-    <header className="pt-6 lg:pb-6">
+    <header className="border-b border-slate-5 pt-6 pb-6 dark:border-slatedark-5">
       <div className="space-y-1 text-center">
-        <dl className="space-y-10">
-          <div>
-            <dt className="sr-only">Published on</dt>
-            <dd className="font-medium text-base text-slate-11 leading-6 dark:text-slatedark-11">
-              <time dateTime={date.toISOString()}>
-                {new Date(date).toLocaleDateString(
-                  siteMetadata.locale,
-                  postDateTemplate,
-                )}
-                {pinned ? "  (置顶博文)" : ""}
-              </time>
-            </dd>
-          </div>
-        </dl>
+        <nav
+          aria-label="文章分类"
+          className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-slate-11 dark:text-slatedark-11"
+        >
+          {categories.map((category, index) => (
+            <Fragment key={category.url}>
+              {index > 0 && <span aria-hidden="true">/</span>}
+              <Link
+                href={category.url}
+                className="transition-colors hover:text-blue-11 dark:hover:text-skydark-11"
+              >
+                {category.displayName}
+              </Link>
+            </Fragment>
+          ))}
+        </nav>
         <div>
           <PageTitle title={title} indexable={indexable} />
-          <div className="mt-3 flex justify-center text-[12px]">
-            <svg
-              role="img"
-              aria-label="clock"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-[18px]"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            预计阅读时长：
-            {Math.ceil(readingTime)}
-            分钟
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[12px] lg:text-sm text-slate-11 dark:text-slatedark-11">
+            <time dateTime={date.toISOString()} className="inline">
+              {new Date(date).toLocaleDateString(
+                siteMetadata.locale,
+                postDateTemplate,
+              )}
+              {pinned ? "  (置顶博文)" : ""}
+            </time>
+            <span className="inline" aria-hidden="true">
+              ·
+            </span>
+            <span className="inline-flex items-center">
+              <svg
+                role="img"
+                aria-label="clock"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-[18px]"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              预计阅读时长：
+              {Math.ceil(readingTime)}
+              分钟
+            </span>
+            {tags.length > 0 && (
+              <span className="inline" aria-hidden="true">
+                ·
+              </span>
+            )}
+            {tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/tags/${_slug(tag)}`}
+                className="transition-colors hover:text-blue-11 dark:hover:text-skydark-11"
+              >
+                #{tag.split(" ").join("-")}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -198,124 +209,39 @@ function PostHeader({ date, title, pinned, readingTime, indexable }) {
   );
 }
 
-// 作者信息组件
-function AuthorSection({ authorDetails }) {
+function PostNavigation({ next, prev }: Pick<LayoutProps, "next" | "prev">) {
+  if (!next && !prev) return null;
+
   return (
-    <dl className="pt-6 lg:border-slate-5 lg:border-b lg:pt-11 lg:pb-10 lg:dark:border-slatedark-5">
-      <dt className="sr-only">Authors</dt>
-      <dd>
-        <ul className="flex flex-wrap justify-center gap-4 sm:space-x-12 lg:block lg:space-x-0 lg:space-y-8">
-          {authorDetails.map((author) => (
-            <li className="flex items-center space-x-2" key={author.name}>
-              {author.avatar && (
-                <Image
-                  src={author.avatar}
-                  width={38}
-                  height={38}
-                  alt="avatar"
-                  className="h-10 w-10 rounded-full"
-                />
-              )}
-              <dl className="whitespace-nowrap font-medium text-sm leading-5">
-                <dt className="sr-only">Name</dt>
-                <dd className="text-slate-12 dark:text-slatedark-12">
-                  {author.name}
-                </dd>
-              </dl>
-            </li>
-          ))}
-        </ul>
-      </dd>
-    </dl>
-  );
-}
-
-// 文章导航组件（分类、标签、上下篇文章链接）
-function PostNavigation({ categories, tags, next, prev, basePath, _slug }) {
-  return (
-    <div className="divide-slate-5 font-medium text-sm leading-5 lg:divide-y dark:divide-slatedark-5">
-      <div className="divide-slate-5 py-4 lg:divide-y lg:py-8 dark:divide-slatedark-5">
-        {/* 分类 */}
-        <div className="mb-8">
-          <h2 className="pb-2 text-slate-11 text-sm uppercase tracking-wide dark:text-slatedark-11">
-            当前分类
-          </h2>
-          {categories.map((category, index) => (
-            <Fragment key={category.url}>
-              <span
-                key={`${category.name}_span`}
-                className={cn(index !== 0 && "mr-3")}
-              >
-                {index !== 0 && ">"}
-              </span>
-              <Link
-                key={`${category.name}_link`}
-                href={category.url}
-                className="mr-3 font-medium text-slate-12 text-sm uppercase hover:text-blue-11 dark:text-slatedark-12 dark:hover:text-skydark-11"
-              >
-                {category.displayName}
-              </Link>
-            </Fragment>
-          ))}
-        </div>
-
-        {/* 标签 */}
-        {tags && (
-          <div className="lg:pt-8">
-            <h2 className="pb-2 text-slate-11 text-sm uppercase tracking-wide dark:text-slatedark-11">
-              标签
-            </h2>
-            <div className="flex flex-wrap">
-              {tags.map((tag) => (
-                <Link
-                  href={`/tags/${_slug(tag)}`}
-                  key={tag}
-                  className="mt-2 mr-4 font-medium text-slate-12 text-sm uppercase hover:text-blue-11 dark:text-slatedark-12 dark:hover:text-skydark-11"
-                >
-                  {tag.split(" ").join("-")}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* 上一篇和下一篇文章链接 */}
-      {(next || prev) && (
-        <div className="flex justify-between py-4 lg:block lg:space-y-8 lg:py-8">
-          {prev?.path && (
-            <div>
-              <h2 className="pb-2 text-slate-11 text-sm uppercase tracking-wide dark:text-slatedark-11">
-                上一篇
-              </h2>
-              <div className="text-slate-12 hover:text-blue-11 dark:text-slatedark-12 dark:hover:text-skydark-11">
-                <Link href={`/${prev.path}`}>{prev.title}</Link>
-              </div>
-            </div>
-          )}
-          {next?.path && (
-            <div>
-              <h2 className="pb-2 text-slate-11 text-sm uppercase tracking-wide dark:text-slatedark-11">
-                下一篇
-              </h2>
-              <div className="text-slate-12 hover:text-blue-11 dark:text-slatedark-12 dark:hover:text-skydark-11">
-                <Link href={`/${next.path}`}>{next.title}</Link>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 返回列表页链接 */}
-      <div className="pt-4 lg:pt-8">
+    <nav aria-label="相邻文章" className="grid gap-4 py-6 sm:grid-cols-2">
+      {prev && (
         <Link
-          href={`/${basePath}`}
-          className="text-slate-12 hover:text-blue-11 dark:text-slatedark-12 dark:hover:text-skydark-11"
-          aria-label="回到列表页"
+          href={`/${prev.path}`}
+          rel="prev"
+          className="group flex min-w-0 flex-col gap-3 rounded-2xl bg-slate-3 p-5 transition duration-200 hover:bg-slate-4 hover:shadow-sm dark:bg-slatedark-3 dark:hover:bg-slatedark-4"
         >
-          &larr; 回到列表页
+          <span className="text-sm text-slate-11 dark:text-slatedark-11">
+            ← 上一篇
+          </span>
+          <span className="break-words font-medium text-slate-12 transition-colors group-hover:text-blue-11 dark:text-slatedark-12 dark:group-hover:text-skydark-11">
+            {prev.title}
+          </span>
         </Link>
-      </div>
-    </div>
+      )}
+      {next && (
+        <Link
+          href={`/${next.path}`}
+          rel="next"
+          className="group flex min-w-0 flex-col gap-3 rounded-2xl bg-slate-3 p-5 text-right transition duration-200 hover:bg-slate-4 hover:shadow-sm sm:col-start-2 dark:bg-slatedark-3 dark:hover:bg-slatedark-4"
+        >
+          <span className="text-sm text-slate-11 dark:text-slatedark-11">
+            下一篇 →
+          </span>
+          <span className="break-words font-medium text-slate-12 transition-colors group-hover:text-blue-11 dark:text-slatedark-12 dark:group-hover:text-skydark-11">
+            {next.title}
+          </span>
+        </Link>
+      )}
+    </nav>
   );
 }
