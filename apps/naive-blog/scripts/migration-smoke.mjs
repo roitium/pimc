@@ -85,6 +85,31 @@ try {
     `---\nid: ${randomUUID()}\ntitle: Unpublished vault note\npublish_to: []\ndate: '2026-10-20T00:00:00+08:00'\n---\nimport NeverCompile from "./not-present-on-purpose";\n\n<NeverCompile />\n\nastro-unpublished-body-marker-2981\n`,
   );
   const sharedDemo = `${fixture}/PrivateDemo.tsx`;
+  const tocFixture = [
+    "",
+    "## Custom *emphasis* and `code` [#stable-heading]",
+    "",
+    "## Hidden from TOC [!toc] [#hidden-heading]",
+    "",
+    "Hidden heading body.",
+    "",
+    "## Component heading [toc] [#component-heading]",
+    "",
+    '<div id="component-heading">Component anchor target</div>',
+    "",
+    "## After TOC only [#after-toc-only]",
+    "",
+    "## Duplicate check",
+    "",
+    "## Duplicate check",
+    "",
+    "## Formula $E=mc^2$ [#formula-heading]",
+    "",
+  ].join("\n");
+  for (const entry of ["nested/中文/index.mdx", "plain/index.md"]) {
+    const file = `${fixture}/${entry}`;
+    await writeFile(file, (await readFile(file, "utf8")) + tocFixture);
+  }
   await writeFile(
     sharedDemo,
     "export default function PrivateDemo() { return <span>private-local-component-74529</span>; }",
@@ -119,6 +144,24 @@ try {
   }
   const article = await html("blog/__astro_smoke_test__/nested/中文");
   const markdown = await html("blog/__astro_smoke_test__/plain");
+  for (const page of [article, markdown]) {
+    const toc = page.match(/<nav aria-label="文章目录">([\s\S]*?)<\/nav>/)?.[1];
+    assert(toc, "Compiled TOC is missing");
+    assert(toc.includes('href="#stable-heading"'));
+    assert(toc.includes("Custom emphasis and code"));
+    assert(!toc.includes("Hidden from TOC"));
+    assert(toc.includes('href="#component-heading"'));
+    assert(toc.includes('href="#after-toc-only"'));
+    assert(toc.includes('href="#duplicate-check-1"'));
+    assert(toc.includes("Formula E=mc^2"));
+    assert(!toc.includes("content-header-link-icon"));
+    assert(page.includes('id="stable-heading"'));
+    assert(page.includes('id="hidden-heading"'));
+    assert.equal((page.match(/id="component-heading"/g) ?? []).length, 1);
+    assert(!page.includes("[#stable-heading]"));
+    assert(!page.includes("[!toc]"));
+    assert(!page.includes("[toc]"));
+  }
   assert(markdown.includes("<title>2024-04-15"));
   assert(markdown.includes(">2024-04-15</h1>"));
   assert(markdown.includes(`${base}/static/images/logo.png`));
@@ -322,6 +365,12 @@ try {
   const unlocked = await authenticated.text();
   assert(unlocked.includes(secret));
   assert(unlocked.includes('id="private-heading"'));
+  assert(
+    unlocked
+      .match(/<nav aria-label="文章目录">([\s\S]*?)<\/nav>/)?.[1]
+      .includes('href="#private-heading"'),
+    "Unlocked article must receive its compiled TOC",
+  );
   assert(unlocked.includes('class="katex"'));
   assert(unlocked.includes("data-copy-code"));
   assert(unlocked.includes("private-local-component-74529"));

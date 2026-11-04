@@ -3,6 +3,7 @@
 @source "../../../../contents";
 @import "./theme.css";
 @import "./typography.css";
+@import "./toc.css";
 @import "@pimc/content/styles/callouts.css";
 @import "@pimc/content/styles/headings.css";
 @import "katex/dist/katex.min.css";

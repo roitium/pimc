@@ -3,6 +3,7 @@ import { getEntry, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostLayout from "@/layouts/PostLayout";
 import TOC from "@/components/TOC";
+import type { Toc } from "@pimc/content/toc";
 import ArticleControls from "@/components/ArticlePageButtonGroup";
 import Comments from "@/components/Comments";
 import PasswordForm from "@/components/ArticlePasswordForm";
@@ -37,7 +38,7 @@ const rendered = showBody
   ? await render((await getEntry("posts", post._id))!)
   : null;
 const Content = rendered?.Content;
-const toc = showBody ? post.toc : undefined;
+const toc: Toc | undefined = rendered?.remarkPluginFrontmatter.articleToc;
 const og = `/og/${post.slug}.png`;
 const jsonLd = {
   "@context": "https://schema.org",
@@ -77,13 +78,10 @@ const jsonLd = {
     <ArticleControls slot="controls" toc={toc} client:load />
     <Comments slot="comments" client:load />
     {toc && (
-      <div
-        slot="table-of-contents"
-        class="prose dark:prose-invert sticky top-0 h-screen overflow-y-auto text-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      >
-        <div class="pt-20 pb-8">
-          <h2 class="not-prose ml-5 pb-2 text-lg text-slate-11 uppercase tracking-wide dark:text-slatedark-11">
-            TOC
+      <div slot="table-of-contents" class="sticky top-24 pb-8">
+        <div>
+          <h2 class="pb-4 text-sm font-semibold text-slate-12 dark:text-slatedark-12">
+            本文目录
           </h2>
           <TOC toc={toc} client:load />
         </div>
@@ -98,6 +96,7 @@ const jsonLd = {
     ) : (
       Content && (
         <div
+          data-article-body
           data-article-gallery
           data-pagefind-body={!post.private && !post.draft ? "" : undefined}
         >

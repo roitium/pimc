@@ -6,7 +6,6 @@ import Link from "@/components/Link";
 import type { ReactNode } from "react";
 import categoryMapping from "@/data/category-mapping";
 import siteMetadata from "@/data/siteMetadata";
-import type { TocItem } from "@pimc/content/toc";
 import { Fragment } from "react";
 import type { Author, Post } from "@/services/content/core";
 import type { CoreContent } from "@/services/content/utils";
@@ -28,7 +27,6 @@ interface LayoutProps {
   next?: { path: string; title: string };
   prev?: { path: string; title: string };
   children: ReactNode;
-  toc?: TocItem[];
   controls?: ReactNode;
   comments?: ReactNode;
   tableOfContents?: ReactNode;

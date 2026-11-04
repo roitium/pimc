@@ -9,6 +9,8 @@
     "./loader": "./src/loader.ts",
     "./markdown": "./src/markdown.ts",
     "./toc": "./src/toc.ts",
+    "./components/toc": "./src/components/ArticleTOC.tsx",
+    "./styles/toc.css": "./src/styles/toc.css",
     "./render": "./src/render.ts",
     "./styles/callouts.css": "./src/styles/callouts.css",
     "./styles/headings.css": "./src/styles/headings.css",
@@ -21,8 +23,9 @@
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.5",
     "@shikijs/transformers": "^4.5.0",
-    "github-slugger": "^2.0.0",
-    "mdast-util-to-string": "^4.0.0",
+    "@shikijs/types": "^4.5.0",
+    "fumadocs-core": "^16.17.10",
+    "hast-util-to-string": "^3.0.1",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-callouts": "^2.2.0",
     "rehype-katex": "^7.0.1",
@@ -39,16 +42,18 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3",
-    "zod": "^4.3.6",
-    "@shikijs/types": "^4.5.0"
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "astro": "^7.4.4"
+    "astro": "^7.4.4",
+    "react": "^19.2.0"
   },
   "devDependencies": {
+    "@types/hast": "3.0.5",
     "@types/mdast": "^4.0.4",
-    "@types/unist": "^3.0.3",
     "@types/node": "^22.15.33",
+    "@types/react": "^19.1.8",
+    "@types/unist": "^3.0.3",
     "typescript": "^5.8.3"
   }
 }

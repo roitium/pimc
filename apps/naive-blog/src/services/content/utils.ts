@@ -54,16 +54,16 @@ export function sortPostsByDate<T extends CoreContent<Post> | Post>(
   return allBlogs.sort((a, b) => dateSortDesc(a.date, b.date));
 }
 
-export type CoreContent<T> = Omit<T, "password" | "content" | "_id" | "toc">;
+export type CoreContent<T> = Omit<T, "password" | "content" | "_id">;
 
 /**
- * 从 MDX 文档中删除密码、toc、原始内容和 _id，只返回核心内容
+ * 从 MDX 文档中删除密码、原始内容和 _id，只返回核心内容
  *  暴露给用户的数据应该只包含核心信息，避免暴露不必要的数据
  * @param {T} content
  * @return {*}  {CoreContent<T>}
  */
 export function coreContent<T extends Post>(content: T): CoreContent<T> {
-  return omit(content, ["password", "content", "_id", "toc"]);
+  return omit(content, ["password", "content", "_id"]);
 }
 
 /**
@@ -87,7 +87,7 @@ export const omit = <Obj, Keys extends keyof Obj>(
 };
 
 /**
- * 从 MDX 文档列表中删除 password, content, _id, toc，只返回核心内容
+ * 从 MDX 文档列表中删除 password, content, _id，只返回核心内容
  * 在生产环境排除草稿，私密文章仅保留列表展示所需的元数据。
  *  确保用户只能访问到需要的核心数据，并且在生产环境下不会包含草稿内容
  * @param {T[]} contents

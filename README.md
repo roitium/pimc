@@ -90,6 +90,8 @@ password: null
 
 两个博客统一支持文章目录入口：`tech/hello/index.md` 或 `index.mdx` 分别对应 `/posts/tech/hello/`（Lab）和 `/blog/tech/hello`（Personal）。图片和组件可以放在文章同目录，通过 `./` 相对引用。普通 `tech/hello.md` 的 URL 不变。入口文件必须位于具名文章目录，内容根目录的 `index.md` 不可占用列表页。
 
+两个博客的文章侧栏目录共用 Fumadocs 编译期生成和 React 交互组件，支持 `[#custom-id]` 自定义锚点、`[!toc]` 隐藏目录项，以及 `[toc]` 声明仅出现在目录中的组件入口；桌面侧栏与移动端抽屉提供标题跟随和正文阅读进度。语法示例、使用限制及组件 ID 要求见 [Naive Blog 目录说明](apps/naive-blog/README.md#文章目录与标题锚点)。这些语法可用于双站发布的文章。Lab 的主题和布局适配见 [Lab Blog 说明](apps/lab-blog/README.md#文章目录与阅读进度)。
+
 `hello.md` 与 `hello/index.md` 等产生相同 URL 的文章会在内容加载阶段报错，并指出两个源文件。内部内容标识保留完整源路径，公开 URL 只移除末尾的 `/index`，相对资源和 MDX 渲染仍使用真实源文件。自定义 `slug` 在 Lab 中覆盖文章名称；目录入口会替换文章目录对应的最后一段。
 
 ## 部署

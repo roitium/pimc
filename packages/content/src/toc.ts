@@ -1,55 +1,28 @@
-/** From https://github.com/timlrx/pliny */
-import GithubSlugger from "github-slugger";
-import type { Heading } from "mdast";
-import { toString as toStringMdast } from "mdast-util-to-string";
-import { remark } from "remark";
-import type { Parent } from "unist";
-import { visit } from "unist-util-visit";
-import { VFile } from "vfile";
+import type {} from "@astrojs/markdown-remark";
+import type {} from "fumadocs-core/mdx-plugins/rehype-toc";
+import { toString } from "hast-util-to-string";
+import type { Root } from "hast";
+import type { Plugin } from "unified";
 
+/** Serializable Fumadocs items passed from Astro to React islands. */
 export type TocItem = {
-  value: string;
+  title: string;
   url: string;
   depth: number;
 };
 
 export type Toc = TocItem[];
 
-declare module "vfile" {
-  interface DataMap {
-    toc: Toc;
-  }
-}
-
-/**
- * Extracts TOC headings from markdown file and adds it to the file's data object.
- */
-export function remarkTocHeadings() {
-  return (tree: Parent, file: VFile) => {
-    const slugger = new GithubSlugger();
-    const toc: Toc = [];
-    visit(tree, "heading", (node: Heading) => {
-      const textContent = toStringMdast(node);
-      const slugUrl = slugger.slug(textContent);
-      toc.push({
-        value: textContent,
-        url: `#${slugUrl}`,
-        depth: node.depth,
-      });
-    });
-    file.data.toc = toc;
+/** Extract before heading links/KaTeX add decorative or duplicated text. */
+export const rehypeArticleToc: Plugin<[], Root> = function () {
+  return (_tree, file) => {
+    const toc: Toc = (file.data.rehypeToc ?? []).map((item) => ({
+      title: toString(item.title),
+      url: item.url,
+      depth: item.depth,
+    }));
+    file.data.astro ??= {};
+    file.data.astro.frontmatter ??= {};
+    file.data.astro.frontmatter.articleToc = toc;
   };
-}
-
-/**
- * Passes markdown file through remark to extract TOC headings
- *
- * @param {string} markdown
- * @return {*}  {Promise<Toc>}
- */
-export async function extractTocHeadings(markdown: string): Promise<Toc> {
-  const processor = remark().use(remarkTocHeadings);
-  const vfile = new VFile(markdown);
-  await processor.run(processor.parse(vfile), vfile);
-  return vfile.data.toc ?? [];
-}
+};
