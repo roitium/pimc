@@ -33,20 +33,6 @@
   color: var(--foreground);
 }
 
-.lab-toc-sidebar .article-toc-list a,
-.lab-toc-drawer .article-toc-list a {
-  border-inline-start-style: dashed;
-}
-
-.lab-toc-sidebar .article-toc-list a[data-active="true"],
-.lab-toc-drawer .article-toc-list a[data-active="true"] {
-  border-inline-start: 1px dashed var(--toc-line);
-  background: transparent;
-  text-decoration: underline;
-  text-decoration-style: dashed;
-  text-underline-offset: 0.25em;
-}
-
 .lab-reading-progress {
   position: fixed;
   inset-block-start: 0;

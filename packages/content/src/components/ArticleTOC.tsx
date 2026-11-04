@@ -182,7 +182,7 @@ export default function TOC({
   toc = [],
   onNavigate,
   headingOffset = 80,
-  animatedIndicator = false,
+  animatedIndicator = true,
 }: TOCInlineProps) {
   return (
     <div
