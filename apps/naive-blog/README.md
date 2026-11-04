@@ -3,7 +3,7 @@
 > Too young, too simple, sometimes naïve!
 > —— 🐸
 
-基于 Astro、React、Tailwind CSS 和 MDX 的个人博客。页面与公开正文在构建时生成 HTML，导航、目录、Memos 和文章内演示按需加载 React，搜索使用 Pagefind。密码文章等动态接口使用 Cloudflare Workers，OG 图片在构建时生成。
+基于 Astro、React、Svelte、Tailwind CSS 和 MDX 的个人博客。页面与公开正文在构建时生成 HTML，导航、目录、Memos 和文章内演示按需加载 React 或 Svelte，搜索使用 Pagefind。密码文章等动态接口使用 Cloudflare Workers，OG 图片在构建时生成。
 
 ## 本地开发
 
@@ -55,7 +55,7 @@ bun run deploy    # 构建并发布到 Cloudflare Workers
 - 解锁状态使用按文章签名的 HttpOnly、SameSite=Lax Cookie，HTTPS 下启用 Secure，最长有效 7 天；密码变更后失效。页面和鉴权接口均返回 `private, no-store`，不会把正文放入共享缓存。
 - 可在构建密钥中配置 `PRIVATE_POST_COOKIE_SECRET`（至少 32 字节随机字符串）以跨部署保留解锁状态。不设置也可运行，但每次构建会生成新密钥，部署后需要重新输入文章密码。图片仍作为公开静态资源发布，不属于正文鉴权范围。
 
-已有的 `<Image />`、`<TOCInline />` 和 `<GCPlay />` 由组件映射兼容。新增 React 交互组件时，在 MDX 中导入组件并使用 Astro 的 `client:load` 或 `client:visible` 指令，或建立 `.astro` 包装组件。公开 MDX 不再使用 `@content-collections/mdx/react` 编译产物。
+已有的 `<Image />`、`<TOCInline />` 和 `<GCPlay />` 由组件映射兼容。新增 React 或 Svelte 交互组件时，在 MDX 中导入组件并使用 Astro 的 `client:load` 或 `client:visible` 指令，或建立 `.astro` 包装组件。公开 MDX 不再使用 `@content-collections/mdx/react` 编译产物。
 
 ### 文章目录与标题锚点
 
