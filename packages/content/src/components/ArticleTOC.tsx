@@ -13,6 +13,13 @@ import {
   useActiveAnchors,
 } from "fumadocs-core/toc";
 import type { Toc } from "@pimc/content/toc";
+import { observeScrollControls } from "../scroll-controls";
+
+export function useScrollControlsVisible() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => observeScrollControls(setVisible), []);
+  return visible;
+}
 
 export interface TOCInlineProps {
   toc?: Toc;
@@ -20,6 +27,7 @@ export interface TOCInlineProps {
   headingOffset?: number;
   animatedIndicator?: boolean;
   collapseInactive?: boolean;
+  showProgress?: boolean;
 }
 
 export function useArticleReadingProgress(headingOffset = 80) {
@@ -207,6 +215,7 @@ export default function TOC({
   headingOffset = 80,
   animatedIndicator = true,
   collapseInactive = false,
+  showProgress = true,
 }: TOCInlineProps) {
   return (
     <div
@@ -214,7 +223,7 @@ export default function TOC({
       data-collapse-inactive={collapseInactive || undefined}
       data-animated-indicator={animatedIndicator || undefined}
     >
-      <ReadingProgress headingOffset={headingOffset} />
+      {showProgress && <ReadingProgress headingOffset={headingOffset} />}
       {toc.length > 0 && (
         <nav aria-label="文章目录">
           <AnchorProvider toc={toc}>

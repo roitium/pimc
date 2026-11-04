@@ -33,8 +33,12 @@
 
 .lab-toc-title {
   margin: 0 0 1rem;
-  font-size: 0.875rem;
+  padding-block: 1rem;
+  text-align: center;
+  font-size: 1.125rem;
   font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.025em;
   color: var(--foreground);
 }
 
@@ -49,6 +53,9 @@
 }
 
 .lab-toc-trigger {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
   position: fixed;
   inset-inline-end: 1rem;
   bottom: 6.5rem;
@@ -63,6 +70,12 @@
   color: var(--accent);
   font-size: 0.875rem;
   box-shadow: 0 3px 12px #0000000a;
+}
+
+.lab-toc-trigger[data-scroll-visible="false"] {
+  opacity: 0;
+  transform: translateY(1rem);
+  pointer-events: none;
 }
 
 .lab-toc-overlay {
@@ -91,7 +104,7 @@
   flex-shrink: 0;
   width: 3rem;
   height: 4px;
-  margin: 0.75rem auto 1.25rem;
+  margin: 1rem auto 0;
   border-radius: 999px;
   background: var(--muted-foreground);
   opacity: 0.4;
@@ -125,6 +138,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lab-toc-trigger {
+    transition: none;
+  }
   html {
     scroll-behavior: auto;
   }

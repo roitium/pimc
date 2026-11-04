@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./scroll-controls": "./src/scroll-controls.ts",
     "./schema": "./src/schema.ts",
     "./paths": "./src/paths.ts",
     "./loader": "./src/loader.ts",

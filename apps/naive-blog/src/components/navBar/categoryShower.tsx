@@ -6,9 +6,7 @@ import { memo, useState } from "react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -101,9 +99,6 @@ const CategoryDrawer = memo(function CategoryDrawer() {
             expanded
           />
         </div>
-        <DrawerFooter>
-          <DrawerClose>关闭</DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

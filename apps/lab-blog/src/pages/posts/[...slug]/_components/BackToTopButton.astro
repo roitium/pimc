@@ -8,10 +8,12 @@ const t = useTranslations(Astro.currentLocale);
 
 <div
   id="btt-btn-container"
+  data-scroll-visible="false"
+  inert
   class:list={[
     "fixed inset-e-4 bottom-8 z-50",
     "md:sticky md:inset-e-auto md:float-end md:me-1",
-    "translate-y-14 opacity-0 transition duration-500",
+    "transition duration-200 motion-reduce:transition-none",
   ]}
 >
   <button
@@ -35,53 +37,76 @@ const t = useTranslations(Astro.currentLocale);
   </button>
 </div>
 
-<script is:inline data-astro-rerun>
-  function backToTop() {
-    const rootElement = document.documentElement;
-    const btnContainer = document.querySelector("#btt-btn-container");
-    const backToTopBtn = document.querySelector("[data-button='back-to-top']");
-    const progressIndicator = document.querySelector("#progress-indicator");
-
-    if (!rootElement || !btnContainer || !backToTopBtn || !progressIndicator)
-      return;
-
-    backToTopBtn.addEventListener("click", () => {
-      document.body.scrollTop = 0;
-      document.documentElement.scrollTop = 0;
-    });
-
-    let lastVisible = null;
-    function handleScroll() {
-      const scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
-      const scrollTop = rootElement.scrollTop;
-      const scrollPercent = Math.floor((scrollTop / scrollTotal) * 100);
-
-      progressIndicator.style.setProperty(
-        "background-image",
-        `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`,
-      );
-
-      const isVisible = scrollTop / scrollTotal > 0.3;
-
-      if (isVisible !== lastVisible) {
-        btnContainer.classList.toggle("opacity-100", isVisible);
-        btnContainer.classList.toggle("translate-y-0", isVisible);
-        btnContainer.classList.toggle("opacity-0", !isVisible);
-        btnContainer.classList.toggle("translate-y-14", !isVisible);
-        lastVisible = isVisible;
-      }
-    }
-
-    let ticking = false;
-    document.addEventListener("scroll", () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    });
+<style>
+  #btt-btn-container[data-scroll-visible="false"] {
+    opacity: 0;
+    transform: translateY(1rem);
+    pointer-events: none;
   }
-  backToTop();
+</style>
+
+<script>
+  import { observeScrollControls } from "@pimc/content/scroll-controls";
+
+  function backToTop() {
+    const container = document.querySelector<HTMLElement>("#btt-btn-container");
+    const button = container?.querySelector<HTMLButtonElement>(
+      "[data-button='back-to-top']",
+    );
+    const indicator = container?.querySelector<HTMLElement>(
+      "#progress-indicator",
+    );
+    if (!container || !button || !indicator) return;
+
+    const controller = new AbortController();
+    button.addEventListener(
+      "click",
+      () => {
+        window.scrollTo({
+          top: 0,
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+        });
+      },
+      { signal: controller.signal },
+    );
+
+    const stopObserving = observeScrollControls((visible) => {
+      container.dataset.scrollVisible = String(visible);
+      container.inert = !visible;
+      container.setAttribute("aria-hidden", String(!visible));
+    });
+
+    let frame = 0;
+    const updateProgress = () => {
+      frame = 0;
+      const root = document.documentElement;
+      const total = root.scrollHeight - root.clientHeight;
+      const progress =
+        total > 0
+          ? Math.min(100, Math.max(0, (root.scrollTop / total) * 100))
+          : 0;
+      indicator.style.backgroundImage = `conic-gradient(var(--accent) ${progress}%, transparent ${progress}%)`;
+    };
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (!frame) frame = requestAnimationFrame(updateProgress);
+      },
+      { passive: true, signal: controller.signal },
+    );
+    updateProgress();
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        controller.abort();
+        stopObserving();
+        cancelAnimationFrame(frame);
+      },
+      { once: true, signal: controller.signal },
+    );
+  }
+  document.addEventListener("astro:page-load", backToTop);
 </script>

@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Drawer } from "vaul";
-import TOC, { useArticleReadingProgress } from "@pimc/content/components/toc";
+import TOC, {
+  useArticleReadingProgress,
+  useScrollControlsVisible,
+} from "@pimc/content/components/toc";
 import type { Toc } from "@pimc/content/toc";
 
 export default function ArticleNavigation({ toc }: { toc: Toc }) {
   const [open, setOpen] = useState(false);
   const progress = useArticleReadingProgress(16);
+  const controlsVisible = useScrollControlsVisible();
 
   return (
     <>
@@ -29,7 +33,13 @@ export default function ArticleNavigation({ toc }: { toc: Toc }) {
         </div>
       </aside>
       <Drawer.Root open={open} onOpenChange={setOpen}>
-        <Drawer.Trigger className="lab-toc-trigger" aria-label="打开目录">
+        <Drawer.Trigger
+          className="lab-toc-trigger"
+          aria-label="打开目录"
+          data-scroll-visible={controlsVisible}
+          tabIndex={controlsVisible ? 0 : -1}
+          aria-hidden={!controlsVisible}
+        >
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -54,12 +64,13 @@ export default function ArticleNavigation({ toc }: { toc: Toc }) {
             data-pagefind-ignore
           >
             <div className="lab-toc-handle" aria-hidden="true" />
-            <Drawer.Title className="lab-toc-title">本文目录</Drawer.Title>
+            <Drawer.Title className="lab-toc-title">目录</Drawer.Title>
             <div className="lab-toc-drawer-body">
               <TOC
                 toc={toc}
                 headingOffset={16}
                 animatedIndicator
+                showProgress={false}
                 onNavigate={() => setOpen(false)}
               />
             </div>

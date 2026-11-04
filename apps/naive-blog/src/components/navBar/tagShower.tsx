@@ -6,9 +6,7 @@ import { memo, useCallback, useState } from "react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -130,9 +128,6 @@ const TagDrawer = memo(function TagDrawer() {
         <div className="p-4">
           <TagsContent close={() => setIsOpen(false)} />
         </div>
-        <DrawerFooter>
-          <DrawerClose>关闭</DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
